@@ -157,23 +157,35 @@
     .step-button:active, .icon-button:active, .round-button:active { transform: scale(.97); }
     .step-value { text-align: center; font-size: 2.15rem; font-weight: 650; font-variant-numeric: tabular-nums; letter-spacing: -.04em; }
     .step-value small { margin-left: 3px; color: var(--muted); font-size: .88rem; font-weight: 500; letter-spacing: 0; }
-    .weight-entry { display: flex; align-items: baseline; justify-content: center; min-width: 0; }
+    .weight-entry {
+      display: inline-flex;
+      align-items: baseline;
+      justify-content: center;
+      justify-self: center;
+      width: fit-content;
+      min-width: 126px;
+      max-width: 100%;
+      min-height: 52px;
+      padding: 5px 10px;
+      gap: 3px;
+      border-radius: 14px;
+    }
+    .weight-entry:focus-within { background: var(--surface-2); box-shadow: inset 0 0 0 1px rgba(91, 156, 255, .38); }
     .weight-input {
       width: 5ch;
       min-width: 0;
       padding: 0;
       border: 0;
-      border-bottom: 1px dashed transparent;
-      border-radius: 0;
       background: transparent;
       color: var(--text);
-      text-align: right;
+      text-align: center;
       font: inherit;
+      line-height: 1;
       font-variant-numeric: tabular-nums;
       letter-spacing: inherit;
       appearance: none;
     }
-    .weight-input:hover, .weight-input:focus { border-bottom-color: var(--accent); }
+    .weight-input:focus-visible { outline: 0; }
 
     .primary-button {
       width: 100%;
@@ -354,7 +366,7 @@
         <div class="field-header"><span>Вес</span><span class="field-delta" id="weight-delta"></span></div>
         <div class="stepper">
           <button class="step-button" type="button" data-change="weight" data-delta="-2.5" aria-label="Уменьшить вес на 2,5 килограмма">−</button>
-          <label class="step-value weight-entry"><input class="weight-input" id="weight-input" type="text" inputmode="decimal" autocomplete="off" aria-label="Вес в килограммах" value="0"><small>кг</small></label>
+          <label class="step-value weight-entry"><input class="weight-input" id="weight-input" type="text" inputmode="decimal" autocomplete="off" enterkeyhint="done" aria-label="Вес в килограммах" value="0"><small>кг</small></label>
           <button class="step-button" type="button" data-change="weight" data-delta="2.5" aria-label="Увеличить вес на 2,5 килограмма">+</button>
         </div>
 
