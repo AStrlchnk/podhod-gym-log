@@ -270,7 +270,7 @@
       transform: translateX(-50%);
       width: min(100%, 540px);
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(4, 1fr);
       gap: 6px;
       padding: 9px 16px calc(10px + env(safe-area-inset-bottom));
       background: rgba(11, 13, 17, .88);
@@ -289,6 +289,32 @@
 
     .nav-button.active { background: var(--accent-soft); color: var(--accent); }
     .panel[hidden] { display: none; }
+
+    .membership-card {
+      padding: 19px;
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      background: linear-gradient(145deg, rgba(40, 120, 238, .2), rgba(21, 24, 30, .96) 58%);
+      box-shadow: var(--shadow);
+    }
+    .membership-card.empty { background: var(--surface); box-shadow: none; }
+    .membership-status { display: inline-flex; min-height: 28px; align-items: center; padding: 0 10px; border-radius: 999px; background: rgba(97, 214, 155, .12); color: var(--success); font-size: .75rem; font-weight: 650; }
+    .membership-status.warning { background: rgba(255, 196, 89, .12); color: #ffc459; }
+    .membership-status.expired { background: rgba(255, 124, 124, .12); color: var(--danger); }
+    .membership-name { margin-top: 16px; font-size: 1.35rem; font-weight: 650; letter-spacing: -.02em; }
+    .membership-days { margin-top: 5px; color: var(--muted); font-size: .88rem; }
+    .membership-progress { height: 7px; margin-top: 17px; overflow: hidden; border-radius: 999px; background: var(--surface-3); }
+    .membership-progress span { display: block; width: 0; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--accent), var(--success)); }
+    .membership-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin-top: 12px; }
+    .membership-detail { padding: 13px; border: 1px solid var(--border); border-radius: 16px; background: rgba(11, 13, 17, .42); }
+    .membership-detail span { display: block; color: var(--muted); font-size: .72rem; }
+    .membership-detail strong { display: block; margin-top: 5px; font-size: .92rem; font-weight: 600; }
+    .membership-section { margin-top: 18px; }
+    .membership-section h2 { margin-bottom: 10px; }
+    .membership-gyms { display: flex; flex-wrap: wrap; gap: 8px; }
+    .gym-chip { padding: 9px 12px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); color: var(--text); font-size: .84rem; }
+    .membership-note { padding: 14px; border: 1px solid var(--border); border-radius: 16px; background: var(--surface); color: var(--muted); font-size: .88rem; line-height: 1.5; white-space: pre-wrap; }
+    .membership-edit { margin-top: 18px; }
 
     .section-header {
       display: flex;
@@ -365,6 +391,7 @@
     .dialog-form { display: grid; gap: 12px; }
     .dialog-form label { display: grid; gap: 7px; color: var(--muted); font-size: .82rem; }
     .dialog-form .text-input { width: 100%; }
+    .textarea-input { width: 100%; min-height: 92px; padding: 12px 13px; resize: vertical; border: 1px solid var(--border); border-radius: 13px; background: var(--surface-2); color: var(--text); font: inherit; }
     .toast { position: fixed; z-index: 40; left: 50%; bottom: calc(92px + env(safe-area-inset-bottom)); transform: translate(-50%, 18px); max-width: calc(100% - 32px); padding: 11px 16px; border: 1px solid var(--border); border-radius: 13px; background: var(--surface-3); color: var(--text); opacity: 0; pointer-events: none; transition: .2s ease; box-shadow: var(--shadow); }
     .toast.show { opacity: 1; transform: translate(-50%, 0); }
 
@@ -465,6 +492,14 @@
       <select class="progress-picker" id="progress-exercise" aria-label="Упражнение для графика"></select>
       <div class="progress-card" id="progress-card"></div>
     </section>
+
+    <section class="panel" id="membership-panel" aria-labelledby="membership-tab" hidden>
+      <header class="topbar"><div><h1>Абонемент</h1><p class="meta">Срок действия и доступные залы</p></div></header>
+      <div class="membership-card empty" id="membership-card"></div>
+      <section class="membership-section" id="membership-gyms-section" hidden><h2>Доступные залы</h2><div class="membership-gyms" id="membership-gyms"></div></section>
+      <section class="membership-section" id="membership-note-section" hidden><h2>Описание</h2><div class="membership-note" id="membership-note"></div></section>
+      <button class="primary-button membership-edit" id="edit-membership" type="button">Добавить абонемент</button>
+    </section>
   </div>
 
   <nav class="bottom-nav" aria-label="Разделы приложения">
@@ -476,6 +511,9 @@
     </button>
     <button class="nav-button" id="progress-tab" type="button" data-panel="progress">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 19V9M10 19V5M16 19v-7M22 19V2"/></svg><span>Прогресс</span>
+    </button>
+    <button class="nav-button" id="membership-tab" type="button" data-panel="membership">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M3 10h18M7 15h4"/></svg><span>Абонемент</span>
     </button>
   </nav>
 
@@ -529,6 +567,18 @@
     </form>
   </dialog>
 
+  <dialog id="membership-dialog">
+    <div class="dialog-head"><div><h2>Абонемент</h2><p class="meta">Данные сохраняются на этом устройстве</p></div><button class="icon-button" id="close-membership" type="button" aria-label="Закрыть">×</button></div>
+    <form class="dialog-body dialog-form" id="membership-form">
+      <label>Название или тип<input class="text-input" id="membership-name-input" type="text" maxlength="60" placeholder="Например: Фитнес на год" required></label>
+      <label>Дата покупки<input class="text-input" id="membership-purchased-input" type="date" required></label>
+      <label>Действует до<input class="text-input" id="membership-until-input" type="date" required></label>
+      <label>Залы<textarea class="textarea-input" id="membership-gyms-input" maxlength="500" placeholder="Каждый зал с новой строки"></textarea></label>
+      <label>Описание<textarea class="textarea-input" id="membership-note-input" maxlength="500" placeholder="Например: безлимит, бассейн включён"></textarea></label>
+      <button class="primary-button" type="submit">Сохранить</button>
+    </form>
+  </dialog>
+
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <script>
@@ -540,6 +590,7 @@
       const formatWeight = value => Number(value).toLocaleString('ru-RU', { maximumFractionDigits: 1 });
       const exerciseWord = count => count % 100 >= 11 && count % 100 <= 14 ? 'упражнений' : count % 10 === 1 ? 'упражнение' : count % 10 >= 2 && count % 10 <= 4 ? 'упражнения' : 'упражнений';
       const formatDate = key => new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'long' }).format(parseDate(key));
+      const formatFullDate = key => new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' }).format(parseDate(key));
       const today = dateKey(new Date());
       const previousDay = dateKey(new Date(Date.now() - 4 * DAY));
 
@@ -561,6 +612,7 @@
         ],
         completedExercises: { [today]: [] },
         exerciseNotes: {},
+        membership: { name: '', purchasedAt: '', validUntil: '', gyms: [], note: '' },
         settings: { restSeconds: 90 },
         restTimer: null,
         sessions: {
@@ -599,6 +651,8 @@
             stored.completedExercises ||= {};
             stored.completedExercises[today] = (stored.completedExercises[today] || []).filter(id => validIds.has(id));
             stored.exerciseNotes ||= {};
+            stored.membership = { name: '', purchasedAt: '', validUntil: '', gyms: [], note: '', ...(stored.membership || {}) };
+            stored.membership.gyms = Array.isArray(stored.membership.gyms) ? stored.membership.gyms : [];
             stored.settings = { restSeconds: 90, ...(stored.settings || {}) };
             stored.restTimer ||= null;
             return stored;
@@ -815,6 +869,55 @@
           </div>`;
       }
 
+      function renderMembership() {
+        const membership = state.membership || {};
+        const card = $('#membership-card');
+        const hasMembership = Boolean(membership.name && membership.purchasedAt && membership.validUntil);
+        card.classList.toggle('empty', !hasMembership);
+        $('#edit-membership').textContent = hasMembership ? 'Изменить абонемент' : 'Добавить абонемент';
+        $('#membership-gyms-section').hidden = !hasMembership || !membership.gyms?.length;
+        $('#membership-note-section').hidden = !hasMembership || !membership.note;
+        if (!hasMembership) {
+          card.innerHTML = '<div class="empty-state">Добавь даты и залы — здесь будет видно, сколько действует абонемент.</div>';
+          return;
+        }
+
+        const todayDate = parseDate(today);
+        const startDate = parseDate(membership.purchasedAt);
+        const endDate = parseDate(membership.validUntil);
+        const daysLeft = Math.ceil((endDate - todayDate) / DAY);
+        const daysUntilStart = Math.ceil((startDate - todayDate) / DAY);
+        const totalDays = Math.max(1, Math.ceil((endDate - startDate) / DAY));
+        const elapsedDays = Math.max(0, Math.ceil((todayDate - startDate) / DAY));
+        const progress = Math.min(100, Math.max(0, elapsedDays / totalDays * 100));
+        let status = 'Активен';
+        let statusClass = '';
+        let daysText = daysLeft === 0 ? 'Сегодня последний день' : `Осталось ${daysLeft} дн.`;
+        if (daysUntilStart > 0) {
+          status = 'Ещё не начался';
+          statusClass = 'warning';
+          daysText = `Начнёт действовать через ${daysUntilStart} дн.`;
+        } else if (daysLeft < 0) {
+          status = 'Истёк';
+          statusClass = 'expired';
+          daysText = `Закончился ${formatFullDate(membership.validUntil)}`;
+        } else if (daysLeft <= 7) {
+          status = 'Скоро закончится';
+          statusClass = 'warning';
+        }
+        card.innerHTML = `
+          <span class="membership-status ${statusClass}">${status}</span>
+          <div class="membership-name">${escapeHtml(membership.name)}</div>
+          <div class="membership-days">${daysText}</div>
+          <div class="membership-progress" aria-label="Прошло ${Math.round(progress)} процентов срока"><span style="width:${progress}%"></span></div>
+          <div class="membership-grid">
+            <div class="membership-detail"><span>Куплен</span><strong>${formatFullDate(membership.purchasedAt)}</strong></div>
+            <div class="membership-detail"><span>Действует до</span><strong>${formatFullDate(membership.validUntil)}</strong></div>
+          </div>`;
+        $('#membership-gyms').innerHTML = membership.gyms.map(gym => `<span class="gym-chip">${escapeHtml(gym)}</span>`).join('');
+        $('#membership-note').textContent = membership.note || '';
+      }
+
       function escapeHtml(value) {
         return String(value).replace(/[&<>'"]/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[char]);
       }
@@ -843,6 +946,7 @@
         renderWorkout();
         renderHistory();
         renderProgressPicker();
+        renderMembership();
         renderSettings();
       }
 
@@ -1039,6 +1143,7 @@
         $$('.panel').forEach(item => item.hidden = item.id !== `${panel}-panel`);
         if (panel === 'history') renderHistory();
         if (panel === 'progress') renderProgressPicker();
+        if (panel === 'membership') renderMembership();
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }));
 
@@ -1055,6 +1160,41 @@
       });
       $('#close-template').addEventListener('click', () => templateDialog.close());
       templateDialog.addEventListener('click', event => { if (event.target === templateDialog) templateDialog.close(); });
+
+      const membershipDialog = $('#membership-dialog');
+      $('#edit-membership').addEventListener('click', () => {
+        const membership = state.membership || {};
+        $('#membership-name-input').value = membership.name || '';
+        $('#membership-purchased-input').value = membership.purchasedAt || today;
+        $('#membership-until-input').value = membership.validUntil || '';
+        $('#membership-gyms-input').value = (membership.gyms || []).join('\n');
+        $('#membership-note-input').value = membership.note || '';
+        membershipDialog.showModal();
+        requestAnimationFrame(() => $('#membership-name-input').focus());
+      });
+      $('#close-membership').addEventListener('click', () => membershipDialog.close());
+      membershipDialog.addEventListener('click', event => { if (event.target === membershipDialog) membershipDialog.close(); });
+      $('#membership-form').addEventListener('submit', event => {
+        event.preventDefault();
+        const purchasedAt = $('#membership-purchased-input').value;
+        const validUntil = $('#membership-until-input').value;
+        if (validUntil < purchasedAt) {
+          showToast('Дата окончания раньше даты покупки');
+          return;
+        }
+        const gyms = $('#membership-gyms-input').value.split(/[\n,]+/).map(value => value.trim()).filter(Boolean);
+        state.membership = {
+          name: $('#membership-name-input').value.trim(),
+          purchasedAt,
+          validUntil,
+          gyms: [...new Set(gyms)],
+          note: $('#membership-note-input').value.trim()
+        };
+        save();
+        renderMembership();
+        membershipDialog.close();
+        showToast('Абонемент сохранён');
+      });
       $('#template-form').addEventListener('submit', event => {
         event.preventDefault();
         const name = $('#template-name').value.trim();
@@ -1175,7 +1315,7 @@
 
       window.addEventListener('keydown', event => {
         if (event.target.matches('input, select, textarea')) return;
-        const modalOpen = [dialog, editSetDialog, noteDialog, templateDialog].some(item => item.open);
+        const modalOpen = [dialog, editSetDialog, noteDialog, templateDialog, membershipDialog].some(item => item.open);
         if (event.key === 'ArrowLeft' && !modalOpen) changeExercise(-1);
         if (event.key === 'ArrowRight' && !modalOpen) changeExercise(1);
       });
