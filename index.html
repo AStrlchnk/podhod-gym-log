@@ -43,7 +43,7 @@
     }
 
     button, input, select { font: inherit; }
-    button { cursor: pointer; }
+    button { cursor: pointer; touch-action: manipulation; -webkit-user-select: none; user-select: none; }
     button:focus-visible, input:focus-visible, select:focus-visible {
       outline: 3px solid rgba(91, 156, 255, .55);
       outline-offset: 2px;
@@ -182,6 +182,7 @@
       border-radius: 16px;
       font-size: 1.45rem;
       font-weight: 500;
+      touch-action: manipulation;
     }
 
     .step-button:active, .icon-button:active, .round-button:active { transform: scale(.97); }
