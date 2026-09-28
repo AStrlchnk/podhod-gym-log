@@ -1,4 +1,4 @@
-const CACHE = 'podhod-v6';
+const CACHE = 'podhod-v7';
 const ASSETS = ['./', './index.html', './manifest.webmanifest', './icon.svg'];
 
 self.addEventListener('install', event => {

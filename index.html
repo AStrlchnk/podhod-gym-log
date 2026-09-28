@@ -98,6 +98,21 @@
 
     .exercise-name { font-size: 1.13rem; font-weight: 650; line-height: 1.25; }
     .exercise-count { margin-top: 4px; color: var(--muted); font-size: .78rem; }
+    .exercise-note {
+      display: block;
+      max-width: 100%;
+      margin: -5px auto 12px;
+      padding: 7px 11px;
+      border: 1px solid var(--border);
+      border-radius: 11px;
+      background: transparent;
+      color: var(--muted);
+      font-size: .78rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .exercise-note.has-note { color: var(--text); background: var(--surface); }
 
     .comparison {
       display: grid;
@@ -117,6 +132,21 @@
     .comparison-card.current { background: var(--accent-soft); border-color: rgba(91, 156, 255, .25); }
     .comparison-label { color: var(--muted); font-size: .76rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .comparison-value { margin-top: 7px; font-size: 1.12rem; font-weight: 650; font-variant-numeric: tabular-nums; }
+    .previous-sets {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin: -1px 0 10px;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: rgba(21, 24, 30, .72);
+      color: var(--muted);
+      font-size: .78rem;
+    }
+    .previous-sets span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-variant-numeric: tabular-nums; }
+    .compact-button { min-height: 34px; padding: 0 11px; border: 1px solid rgba(91, 156, 255, .3); border-radius: 10px; background: var(--accent-soft); color: var(--accent); font-weight: 650; white-space: nowrap; }
 
     .entry-card {
       padding: 17px;
@@ -199,10 +229,17 @@
     }
 
     .primary-button:active { transform: translateY(1px); }
+    .workout-actions { display: grid; grid-template-columns: 1fr auto; gap: 9px; }
+    .complete-button { min-width: 118px; min-height: 52px; padding: 0 13px; border: 1px solid var(--border); border-radius: 16px; background: var(--surface-2); color: var(--text); font-weight: 650; }
+    .complete-button.completed { color: var(--success); border-color: rgba(97, 214, 155, .34); background: rgba(97, 214, 155, .08); }
+    .rest-timer { display: none; align-items: center; gap: 10px; margin-top: 10px; padding: 10px 12px; border-radius: 13px; background: var(--accent-soft); color: var(--accent); }
+    .rest-timer.show { display: flex; }
+    .rest-timer strong { margin-left: auto; color: var(--text); font-size: 1.05rem; font-variant-numeric: tabular-nums; }
+    .timer-button { min-width: 38px; height: 34px; padding: 0 9px; border: 0; border-radius: 9px; background: rgba(91, 156, 255, .16); color: var(--accent); }
     .sets { margin-top: 13px; padding: 0 10px; }
     .set-row {
       display: grid;
-      grid-template-columns: 30px 1fr auto 40px;
+      grid-template-columns: 30px minmax(0, 1fr) auto 40px;
       align-items: center;
       gap: 8px;
       min-height: 54px;
@@ -211,6 +248,8 @@
     .set-row:last-child { border-bottom: 0; }
     .set-index { color: var(--muted); font-variant-numeric: tabular-nums; }
     .set-value { font-weight: 650; font-variant-numeric: tabular-nums; }
+    .set-edit { min-width: 0; padding: 8px 0; border: 0; background: transparent; color: var(--text); text-align: left; font: inherit; }
+    .set-edit::after { content: ' · изменить'; color: var(--muted); font-size: .72rem; font-weight: 500; }
     .set-status { color: var(--success); font-size: .78rem; }
     .set-delete { width: 40px; height: 40px; border-radius: 12px; background: transparent; color: var(--muted); }
 
@@ -259,6 +298,16 @@
     }
 
     .history-list { display: grid; gap: 10px; }
+    .calendar-card { margin-bottom: 12px; padding: 14px; background: var(--surface); border: 1px solid var(--border); border-radius: 20px; }
+    .calendar-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
+    .calendar-head strong { text-transform: capitalize; }
+    .calendar-nav { width: 36px; height: 36px; border: 0; border-radius: 10px; background: var(--surface-2); color: var(--text); }
+    .calendar-weekdays, .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
+    .calendar-weekdays span { padding: 4px 0; color: var(--muted); text-align: center; font-size: .68rem; }
+    .calendar-day { position: relative; min-height: 38px; display: grid; place-items: center; border-radius: 10px; color: var(--muted); font-size: .78rem; font-variant-numeric: tabular-nums; }
+    .calendar-day.trained { background: var(--accent-soft); color: var(--accent); font-weight: 650; }
+    .calendar-day.today { box-shadow: inset 0 0 0 1px var(--accent); color: var(--text); }
+    .calendar-day.empty { visibility: hidden; }
     .history-card {
       padding: 16px;
       background: var(--surface);
@@ -297,6 +346,14 @@
     dialog::backdrop { background: rgba(0, 0, 0, .72); backdrop-filter: blur(6px); }
     .dialog-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 18px; border-bottom: 1px solid var(--border); }
     .dialog-body { padding: 16px 18px 22px; overflow: auto; }
+    .settings-section { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--border); }
+    .settings-section:first-child { margin-top: 0; padding-top: 0; border-top: 0; }
+    .settings-section h3 { margin-bottom: 10px; }
+    .template-controls { display: grid; grid-template-columns: 1fr auto; gap: 8px; }
+    .select-input { width: 100%; min-height: 46px; padding: 0 12px; border: 1px solid var(--border); border-radius: 13px; background: var(--surface-2); color: var(--text); }
+    .inline-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .setting-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; color: var(--muted); font-size: .88rem; }
+    .setting-row .select-input { width: auto; min-width: 120px; }
     .exercise-summary { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; padding: 12px 14px; border-radius: 14px; background: var(--accent-soft); color: var(--accent); font-size: .88rem; }
     .exercise-summary strong { color: var(--text); font-variant-numeric: tabular-nums; }
     .exercise-editor { display: grid; grid-template-columns: 42px 1fr 44px; gap: 8px; margin-bottom: 9px; align-items: center; }
@@ -304,6 +361,9 @@
     .text-input { min-width: 0; min-height: 46px; padding: 0 13px; border: 1px solid var(--border); border-radius: 13px; background: var(--surface-2); color: var(--text); }
     .secondary-button, .danger-button { width: 100%; min-height: 48px; margin-top: 10px; border-radius: 14px; border: 1px solid var(--border); background: var(--surface-2); color: var(--text); font-weight: 600; }
     .danger-button { color: var(--danger); }
+    .dialog-form { display: grid; gap: 12px; }
+    .dialog-form label { display: grid; gap: 7px; color: var(--muted); font-size: .82rem; }
+    .dialog-form .text-input { width: 100%; }
     .toast { position: fixed; z-index: 40; left: 50%; bottom: calc(92px + env(safe-area-inset-bottom)); transform: translate(-50%, 18px); max-width: calc(100% - 32px); padding: 11px 16px; border: 1px solid var(--border); border-radius: 13px; background: var(--surface-3); color: var(--text); opacity: 0; pointer-events: none; transition: .2s ease; box-shadow: var(--shadow); }
     .toast.show { opacity: 1; transform: translate(-50%, 0); }
 
@@ -350,6 +410,7 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
         </button>
       </div>
+      <button class="exercise-note" id="exercise-note" type="button">Добавить настройку тренажёра</button>
 
       <div class="comparison" aria-label="Сравнение тренировок">
         <div class="comparison-card">
@@ -361,6 +422,7 @@
           <div class="comparison-value" id="current-value">—</div>
         </div>
       </div>
+      <div class="previous-sets" id="previous-sets"><span id="previous-sets-value">Прошлых подходов нет</span><button class="compact-button" id="repeat-last-set" type="button">Повторить</button></div>
 
       <section class="entry-card" aria-label="Добавление подхода">
         <div class="field-header"><span>Вес</span><span class="field-delta" id="weight-delta"></span></div>
@@ -377,7 +439,11 @@
           <button class="step-button" type="button" data-change="reps" data-delta="1" aria-label="Увеличить повторения">+</button>
         </div>
 
-        <button class="primary-button" id="add-set" type="button">Записать подход</button>
+        <div class="workout-actions">
+          <button class="primary-button" id="add-set" type="button">Записать подход</button>
+          <button class="complete-button" id="complete-exercise" type="button">Готово</button>
+        </div>
+        <div class="rest-timer" id="rest-timer" role="timer"><span>Отдых</span><strong id="rest-time">01:30</strong><button class="timer-button" id="add-rest-time" type="button" aria-label="Добавить 30 секунд">+30</button><button class="timer-button" id="stop-rest-timer" type="button" aria-label="Остановить таймер">×</button></div>
       </section>
 
       <div class="sets" id="sets-list" aria-live="polite"></div>
@@ -385,6 +451,11 @@
 
     <section class="panel" id="history-panel" aria-labelledby="history-tab" hidden>
       <header class="topbar"><div><h1>История</h1><p class="meta">Все тренировки по дням</p></div></header>
+      <div class="calendar-card">
+        <div class="calendar-head"><button class="calendar-nav" id="calendar-previous" type="button" aria-label="Предыдущий месяц">‹</button><strong id="calendar-title"></strong><button class="calendar-nav" id="calendar-next" type="button" aria-label="Следующий месяц">›</button></div>
+        <div class="calendar-weekdays" aria-hidden="true"><span>пн</span><span>вт</span><span>ср</span><span>чт</span><span>пт</span><span>сб</span><span>вс</span></div>
+        <div class="calendar-grid" id="calendar-grid"></div>
+      </div>
       <div class="history-list" id="history-list"></div>
     </section>
 
@@ -410,12 +481,51 @@
   <dialog id="settings-dialog">
     <div class="dialog-head"><div><h2>Тренировка сегодня</h2><p class="meta">Отметь нужные упражнения</p></div><button class="icon-button" id="close-settings" type="button" aria-label="Закрыть настройки">×</button></div>
     <div class="dialog-body">
-      <div class="exercise-summary"><span>Выбрано сегодня</span><strong id="today-exercise-count"></strong></div>
-      <div id="exercise-editors"></div>
-      <button class="secondary-button" id="add-exercise" type="button">Добавить в библиотеку</button>
-      <button class="secondary-button" id="export-data" type="button">Скачать резервную копию</button>
-      <button class="danger-button" id="reset-data" type="button">Очистить все данные</button>
+      <section class="settings-section">
+        <h3>Шаблоны</h3>
+        <div class="template-controls"><select class="select-input" id="template-select" aria-label="Шаблон тренировки"></select><button class="compact-button" id="apply-template" type="button">Применить</button></div>
+        <div class="inline-buttons"><button class="secondary-button" id="save-template" type="button">Сохранить текущую</button><button class="danger-button" id="delete-template" type="button">Удалить шаблон</button></div>
+      </section>
+      <section class="settings-section">
+        <h3>Упражнения</h3>
+        <div class="exercise-summary"><span>Выбрано сегодня</span><strong id="today-exercise-count"></strong></div>
+        <div id="exercise-editors"></div>
+        <button class="secondary-button" id="add-exercise" type="button">Добавить в библиотеку</button>
+      </section>
+      <section class="settings-section">
+        <h3>Отдых</h3>
+        <label class="setting-row"><span>Таймер после подхода</span><select class="select-input" id="rest-duration"><option value="60">1 минута</option><option value="90">1:30</option><option value="120">2 минуты</option><option value="180">3 минуты</option></select></label>
+      </section>
+      <section class="settings-section">
+        <button class="secondary-button" id="export-data" type="button">Скачать резервную копию</button>
+        <button class="danger-button" id="reset-data" type="button">Очистить все данные</button>
+      </section>
     </div>
+  </dialog>
+
+  <dialog id="edit-set-dialog">
+    <div class="dialog-head"><div><h2>Изменить подход</h2><p class="meta" id="edit-set-exercise"></p></div><button class="icon-button" id="close-edit-set" type="button" aria-label="Закрыть">×</button></div>
+    <form class="dialog-body dialog-form" id="edit-set-form">
+      <label>Вес, кг<input class="text-input" id="edit-set-weight" type="text" inputmode="decimal" required></label>
+      <label>Повторения<input class="text-input" id="edit-set-reps" type="number" inputmode="numeric" min="1" max="1000" required></label>
+      <button class="primary-button" type="submit">Сохранить</button>
+    </form>
+  </dialog>
+
+  <dialog id="note-dialog">
+    <div class="dialog-head"><div><h2>Настройка тренажёра</h2><p class="meta" id="note-exercise-name"></p></div><button class="icon-button" id="close-note" type="button" aria-label="Закрыть">×</button></div>
+    <form class="dialog-body dialog-form" id="note-form">
+      <label>Заметка<input class="text-input" id="note-input" type="text" maxlength="120" placeholder="Например: сиденье 4, рукоятка 2"></label>
+      <button class="primary-button" type="submit">Сохранить</button>
+    </form>
+  </dialog>
+
+  <dialog id="template-dialog">
+    <div class="dialog-head"><div><h2>Новый шаблон</h2><p class="meta">Сохранит выбранные сегодня упражнения</p></div><button class="icon-button" id="close-template" type="button" aria-label="Закрыть">×</button></div>
+    <form class="dialog-body dialog-form" id="template-form">
+      <label>Название<input class="text-input" id="template-name" type="text" maxlength="40" placeholder="Например: Ноги" required></label>
+      <button class="primary-button" type="submit">Сохранить шаблон</button>
+    </form>
   </dialog>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -445,6 +555,13 @@
         workoutPlans: {
           [today]: ['leg-press', 'chest-press', 'lat-pulldown', 'leg-curl', 'pec-deck']
         },
+        templates: [
+          { id: 'template-main', name: 'Основная', exerciseIds: ['leg-press', 'chest-press', 'lat-pulldown', 'leg-curl', 'pec-deck'] }
+        ],
+        completedExercises: { [today]: [] },
+        exerciseNotes: {},
+        settings: { restSeconds: 90 },
+        restTimer: null,
         sessions: {
           [previousDay]: {
             'leg-press': [{ weight: 120, reps: 12 }, { weight: 120, reps: 11 }, { weight: 115, reps: 12 }],
@@ -476,6 +593,13 @@
               : previousPlan || stored.exercises.slice(0, 5).map(exercise => exercise.id);
             stored.workoutPlans[today] = selected.length ? selected : [stored.exercises[0].id];
             stored.currentExercise = Math.min(Math.max(Number(stored.currentExercise) || 0, 0), stored.workoutPlans[today].length - 1);
+            stored.templates = Array.isArray(stored.templates) ? stored.templates : [];
+            if (!stored.templates.length) stored.templates.push({ id: `template-${Date.now()}`, name: 'Основная', exerciseIds: [...stored.workoutPlans[today]] });
+            stored.completedExercises ||= {};
+            stored.completedExercises[today] = (stored.completedExercises[today] || []).filter(id => validIds.has(id));
+            stored.exerciseNotes ||= {};
+            stored.settings = { restSeconds: 90, ...(stored.settings || {}) };
+            stored.restTimer ||= null;
             return stored;
           }
         } catch (_) {}
@@ -484,6 +608,10 @@
 
       let state = loadState();
       let toastTimer;
+      let restTimerInterval;
+      let editingSetIndex = null;
+      let noteExerciseId = null;
+      let calendarCursor = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
       const $ = selector => document.querySelector(selector);
       const $$ = selector => [...document.querySelectorAll(selector)];
 
@@ -497,6 +625,52 @@
         toast.classList.add('show');
         clearTimeout(toastTimer);
         toastTimer = setTimeout(() => toast.classList.remove('show'), 1800);
+      }
+
+      function completedToday() {
+        state.completedExercises ||= {};
+        state.completedExercises[today] ||= [];
+        return state.completedExercises[today];
+      }
+
+      function formatTimer(seconds) {
+        const value = Math.max(0, seconds);
+        return `${String(Math.floor(value / 60)).padStart(2, '0')}:${String(value % 60).padStart(2, '0')}`;
+      }
+
+      function renderRestTimer() {
+        const timer = $('#rest-timer');
+        if (!state.restTimer?.endAt) {
+          timer.classList.remove('show');
+          return;
+        }
+        const remaining = Math.ceil((state.restTimer.endAt - Date.now()) / 1000);
+        if (remaining <= 0) {
+          state.restTimer = null;
+          clearInterval(restTimerInterval);
+          timer.classList.remove('show');
+          save();
+          showToast('Отдых закончен');
+          if (navigator.vibrate) navigator.vibrate([120, 80, 120]);
+          return;
+        }
+        $('#rest-time').textContent = formatTimer(remaining);
+        timer.classList.add('show');
+      }
+
+      function startRestTimer(seconds = state.settings.restSeconds) {
+        state.restTimer = { endAt: Date.now() + Number(seconds) * 1000 };
+        save();
+        clearInterval(restTimerInterval);
+        renderRestTimer();
+        restTimerInterval = setInterval(renderRestTimer, 1000);
+      }
+
+      function stopRestTimer() {
+        state.restTimer = null;
+        clearInterval(restTimerInterval);
+        save();
+        renderRestTimer();
       }
 
       function todayExerciseIds() {
@@ -543,6 +717,8 @@
       function renderWorkout() {
         const exercises = workoutExercises();
         const exercise = currentExercise();
+        const completed = new Set(completedToday());
+        const isCompleted = completed.has(exercise.id);
         const todaySets = setsFor(today, exercise.id);
         const previous = previousSession(exercise.id);
         const previousBest = bestSet(previous?.sets || []);
@@ -550,12 +726,20 @@
 
         $('#today-label').textContent = `${new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'long', weekday: 'short' }).format(new Date())} · ${exercises.length} ${exerciseWord(exercises.length)} сегодня`;
         $('#exercise-name').textContent = exercise.name;
-        $('#exercise-count').textContent = `Упражнение ${state.currentExercise + 1} из ${exercises.length}`;
+        $('#exercise-count').textContent = `Упражнение ${state.currentExercise + 1} из ${exercises.length} · ${completed.size} готово`;
+        const note = state.exerciseNotes[exercise.id]?.trim() || '';
+        $('#exercise-note').textContent = note || 'Добавить настройку тренажёра';
+        $('#exercise-note').classList.toggle('has-note', Boolean(note));
         $('#weight-input').value = formatWeight(state.input.weight);
         $('#reps-value').textContent = state.input.reps;
         $('#previous-label').textContent = previous ? `Прошлый раз · ${formatDate(previous.day)}` : 'Прошлый раз';
         $('#previous-value').textContent = previousBest ? `${formatWeight(previousBest.weight)} кг × ${previousBest.reps}` : 'Нет данных';
         $('#current-value').textContent = currentBest ? `${formatWeight(currentBest.weight)} кг × ${currentBest.reps}` : 'Пока нет';
+        $('#previous-sets-value').textContent = previous?.sets.length ? previous.sets.map(set => `${formatWeight(set.weight)}×${set.reps}`).join(' · ') : 'Прошлых подходов нет';
+        $('#repeat-last-set').hidden = !previous?.sets.length;
+        const completeButton = $('#complete-exercise');
+        completeButton.textContent = isCompleted ? 'Вернуть' : 'Готово';
+        completeButton.classList.toggle('completed', isCompleted);
 
         const delta = previousBest ? state.input.weight - previousBest.weight : 0;
         $('#weight-delta').textContent = previousBest ? (delta === 0 ? 'как в прошлый раз' : `${delta > 0 ? '+' : ''}${formatWeight(delta)} кг к прошлому разу`) : '';
@@ -564,13 +748,33 @@
         $('#sets-list').innerHTML = todaySets.length ? todaySets.map((set, index) => `
           <div class="set-row">
             <span class="set-index">${index + 1}</span>
-            <span class="set-value">${formatWeight(set.weight)} кг × ${set.reps}</span>
+            <button class="set-value set-edit" type="button" data-edit-set="${index}" aria-label="Изменить подход ${index + 1}">${formatWeight(set.weight)} кг × ${set.reps}</button>
             <span class="set-status">готово</span>
             <button class="set-delete" type="button" data-delete-set="${index}" aria-label="Удалить подход ${index + 1}">×</button>
           </div>`).join('') : '<div class="empty-state">Подходов пока нет. Вес подставлен из прошлой тренировки.</div>';
+        renderRestTimer();
+      }
+
+      function renderCalendar() {
+        const year = calendarCursor.getFullYear();
+        const month = calendarCursor.getMonth();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        const offset = (new Date(year, month, 1).getDay() + 6) % 7;
+        const trainedDays = new Set(Object.keys(state.sessions).filter(day => Object.values(state.sessions[day]).some(sets => sets.length)));
+        $('#calendar-title').textContent = new Intl.DateTimeFormat('ru-RU', { month: 'long', year: 'numeric' }).format(calendarCursor);
+        const cells = Array.from({ length: offset }, () => '<span class="calendar-day empty"></span>');
+        for (let day = 1; day <= daysInMonth; day += 1) {
+          const key = dateKey(new Date(year, month, day));
+          const classes = ['calendar-day'];
+          if (trainedDays.has(key)) classes.push('trained');
+          if (key === today) classes.push('today');
+          cells.push(`<span class="${classes.join(' ')}" aria-label="${formatDate(key)}${trainedDays.has(key) ? ', была тренировка' : ''}">${day}</span>`);
+        }
+        $('#calendar-grid').innerHTML = cells.join('');
       }
 
       function renderHistory() {
+        renderCalendar();
         const days = Object.keys(state.sessions).filter(day => Object.values(state.sessions[day]).some(sets => sets.length)).sort().reverse();
         $('#history-list').innerHTML = days.length ? days.map(day => {
           const rows = state.exercises.map(exercise => {
@@ -617,6 +821,15 @@
       function renderSettings() {
         const selectedIds = new Set(todayExerciseIds());
         $('#today-exercise-count').textContent = `${selectedIds.size} из ${state.exercises.length}`;
+        const templateSelect = $('#template-select');
+        const previousTemplate = templateSelect.value;
+        templateSelect.innerHTML = state.templates.length
+          ? state.templates.map(template => `<option value="${template.id}">${escapeHtml(template.name)}</option>`).join('')
+          : '<option value="">Нет шаблонов</option>';
+        templateSelect.value = state.templates.some(template => template.id === previousTemplate) ? previousTemplate : state.templates[0]?.id || '';
+        $('#apply-template').disabled = !state.templates.length;
+        $('#delete-template').disabled = !state.templates.length;
+        $('#rest-duration').value = String(state.settings.restSeconds);
         $('#exercise-editors').innerHTML = state.exercises.map((exercise, index) => `
           <div class="exercise-editor">
             <input class="today-checkbox" type="checkbox" data-today-exercise="${exercise.id}" ${selectedIds.has(exercise.id) ? 'checked' : ''} aria-label="Добавить ${escapeHtml(exercise.name)} в тренировку сегодня">
@@ -664,27 +877,90 @@
         }
       });
 
+      function personalRecordMessage(exerciseId, weight, reps) {
+        const previousSets = Object.keys(state.sessions).flatMap(day => setsFor(day, exerciseId));
+        if (!previousSets.length) return '';
+        const maximumWeight = Math.max(...previousSets.map(set => set.weight));
+        if (weight > maximumWeight) return `Новый рекорд: ${formatWeight(weight)} кг`;
+        const sameWeight = previousSets.filter(set => set.weight === weight);
+        const maximumReps = sameWeight.length ? Math.max(...sameWeight.map(set => set.reps)) : 0;
+        if (weight === maximumWeight && reps > maximumReps) return `Новый рекорд: ${reps} повторений`;
+        return '';
+      }
+
       function addSetToExercise(exerciseId, weight, reps) {
         const exercise = state.exercises.find(item => item.id === exerciseId);
         if (!exercise) throw new Error('Упражнение не найдено');
         if (!Number.isFinite(weight) || weight < 0 || weight > 1000) throw new Error('Вес должен быть числом от 0 до 1000');
         if (!Number.isInteger(reps) || reps < 1 || reps > 1000) throw new Error('Повторения должны быть целым числом от 1 до 1000');
+        const record = personalRecordMessage(exerciseId, weight, reps);
         state.sessions[today] ||= {};
         state.sessions[today][exercise.id] ||= [];
         state.sessions[today][exercise.id].push({ weight, reps });
-        save();
+        startRestTimer();
         renderAll();
-        return { date: today, exercise: exercise.name, weight, reps, setNumber: state.sessions[today][exercise.id].length };
+        return { date: today, exercise: exercise.name, weight, reps, setNumber: state.sessions[today][exercise.id].length, record };
       }
 
       $('#add-set').addEventListener('click', () => {
         const exercise = currentExercise();
-        addSetToExercise(exercise.id, state.input.weight, state.input.reps);
-        showToast('Подход сохранён');
+        const result = addSetToExercise(exercise.id, state.input.weight, state.input.reps);
+        showToast(result.record || 'Подход сохранён');
         if (navigator.vibrate) navigator.vibrate(30);
       });
 
+      $('#repeat-last-set').addEventListener('click', () => {
+        const previous = previousSession(currentExercise().id);
+        const set = previous?.sets.at(-1);
+        if (!set) return;
+        state.input = { weight: set.weight, reps: set.reps };
+        save();
+        renderWorkout();
+        showToast('Прошлый подход подставлен');
+      });
+
+      $('#complete-exercise').addEventListener('click', () => {
+        const exercises = workoutExercises();
+        const exercise = currentExercise();
+        const completed = completedToday();
+        const wasCompleted = completed.includes(exercise.id);
+        state.completedExercises[today] = wasCompleted ? completed.filter(id => id !== exercise.id) : [...completed, exercise.id];
+        if (!wasCompleted) {
+          for (let step = 1; step <= exercises.length; step += 1) {
+            const candidateIndex = (state.currentExercise + step) % exercises.length;
+            if (!state.completedExercises[today].includes(exercises[candidateIndex].id)) {
+              state.currentExercise = candidateIndex;
+              break;
+            }
+          }
+          setInputFromHistory();
+        }
+        save();
+        renderWorkout();
+        showToast(wasCompleted ? 'Упражнение возвращено' : state.completedExercises[today].length === exercises.length ? 'Тренировка завершена' : 'Упражнение завершено');
+      });
+
+      $('#add-rest-time').addEventListener('click', () => {
+        const currentEnd = state.restTimer?.endAt || Date.now();
+        state.restTimer = { endAt: Math.max(currentEnd, Date.now()) + 30000 };
+        save();
+        renderRestTimer();
+      });
+      $('#stop-rest-timer').addEventListener('click', stopRestTimer);
+
       $('#sets-list').addEventListener('click', event => {
+        const editButton = event.target.closest('[data-edit-set]');
+        if (editButton) {
+          editingSetIndex = Number(editButton.dataset.editSet);
+          const set = setsFor(today, currentExercise().id)[editingSetIndex];
+          if (!set) return;
+          $('#edit-set-exercise').textContent = currentExercise().name;
+          $('#edit-set-weight').value = formatWeight(set.weight);
+          $('#edit-set-reps').value = set.reps;
+          editSetDialog.showModal();
+          requestAnimationFrame(() => { $('#edit-set-weight').focus(); $('#edit-set-weight').select(); });
+          return;
+        }
         const button = event.target.closest('[data-delete-set]');
         if (!button) return;
         setsFor(today, currentExercise().id).splice(Number(button.dataset.deleteSet), 1);
@@ -704,6 +980,57 @@
       $('#previous-exercise').addEventListener('click', () => changeExercise(-1));
       $('#next-exercise').addEventListener('click', () => changeExercise(1));
 
+      const editSetDialog = $('#edit-set-dialog');
+      $('#close-edit-set').addEventListener('click', () => editSetDialog.close());
+      editSetDialog.addEventListener('click', event => { if (event.target === editSetDialog) editSetDialog.close(); });
+      $('#edit-set-form').addEventListener('submit', event => {
+        event.preventDefault();
+        const weight = Number($('#edit-set-weight').value.trim().replace(',', '.'));
+        const reps = Number($('#edit-set-reps').value);
+        if (!Number.isFinite(weight) || weight < 0 || weight > 1000 || !Number.isInteger(reps) || reps < 1 || reps > 1000) {
+          showToast('Проверь вес и повторения');
+          return;
+        }
+        const set = setsFor(today, currentExercise().id)[editingSetIndex];
+        if (!set) return;
+        set.weight = Math.round(weight * 100) / 100;
+        set.reps = reps;
+        save();
+        renderAll();
+        editSetDialog.close();
+        showToast('Подход изменён');
+      });
+
+      const noteDialog = $('#note-dialog');
+      $('#exercise-note').addEventListener('click', () => {
+        const exercise = currentExercise();
+        noteExerciseId = exercise.id;
+        $('#note-exercise-name').textContent = exercise.name;
+        $('#note-input').value = state.exerciseNotes[exercise.id] || '';
+        noteDialog.showModal();
+        requestAnimationFrame(() => $('#note-input').focus());
+      });
+      $('#close-note').addEventListener('click', () => noteDialog.close());
+      noteDialog.addEventListener('click', event => { if (event.target === noteDialog) noteDialog.close(); });
+      $('#note-form').addEventListener('submit', event => {
+        event.preventDefault();
+        if (!noteExerciseId) return;
+        state.exerciseNotes[noteExerciseId] = $('#note-input').value.trim();
+        save();
+        renderWorkout();
+        noteDialog.close();
+        showToast('Настройка сохранена');
+      });
+
+      $('#calendar-previous').addEventListener('click', () => {
+        calendarCursor = new Date(calendarCursor.getFullYear(), calendarCursor.getMonth() - 1, 1);
+        renderCalendar();
+      });
+      $('#calendar-next').addEventListener('click', () => {
+        calendarCursor = new Date(calendarCursor.getFullYear(), calendarCursor.getMonth() + 1, 1);
+        renderCalendar();
+      });
+
       $$('.nav-button').forEach(button => button.addEventListener('click', () => {
         const panel = button.dataset.panel;
         $$('.nav-button').forEach(item => { item.classList.toggle('active', item === button); item.removeAttribute('aria-current'); });
@@ -718,6 +1045,55 @@
       $('#settings-button').addEventListener('click', () => { renderSettings(); dialog.showModal(); });
       $('#close-settings').addEventListener('click', () => dialog.close());
       dialog.addEventListener('click', event => { if (event.target === dialog) dialog.close(); });
+
+      const templateDialog = $('#template-dialog');
+      $('#save-template').addEventListener('click', () => {
+        $('#template-name').value = '';
+        templateDialog.showModal();
+        requestAnimationFrame(() => $('#template-name').focus());
+      });
+      $('#close-template').addEventListener('click', () => templateDialog.close());
+      templateDialog.addEventListener('click', event => { if (event.target === templateDialog) templateDialog.close(); });
+      $('#template-form').addEventListener('submit', event => {
+        event.preventDefault();
+        const name = $('#template-name').value.trim();
+        if (!name) return;
+        state.templates.push({ id: `template-${Date.now()}`, name, exerciseIds: [...todayExerciseIds()] });
+        save();
+        renderSettings();
+        templateDialog.close();
+        showToast('Шаблон сохранён');
+      });
+      $('#apply-template').addEventListener('click', () => {
+        const template = state.templates.find(item => item.id === $('#template-select').value);
+        if (!template) return;
+        const validIds = new Set(state.exercises.map(exercise => exercise.id));
+        const selected = template.exerciseIds.filter(id => validIds.has(id));
+        if (!selected.length) {
+          showToast('В шаблоне нет доступных упражнений');
+          return;
+        }
+        state.workoutPlans[today] = selected;
+        state.completedExercises[today] = completedToday().filter(id => selected.includes(id));
+        state.currentExercise = 0;
+        setInputFromHistory();
+        save();
+        renderAll();
+        showToast(`Шаблон «${template.name}» применён`);
+      });
+      $('#delete-template').addEventListener('click', () => {
+        const template = state.templates.find(item => item.id === $('#template-select').value);
+        if (!template || !confirm(`Удалить шаблон «${template.name}»?`)) return;
+        state.templates = state.templates.filter(item => item.id !== template.id);
+        save();
+        renderSettings();
+        showToast('Шаблон удалён');
+      });
+      $('#rest-duration').addEventListener('change', event => {
+        state.settings.restSeconds = Number(event.target.value);
+        save();
+        showToast('Таймер отдыха обновлён');
+      });
 
       $('#exercise-editors').addEventListener('change', event => {
         const todayExerciseId = event.target.dataset.todayExercise;
@@ -735,6 +1111,7 @@
           }
           const currentIndex = workoutExercises().findIndex(exercise => exercise.id === currentId);
           state.currentExercise = currentIndex >= 0 ? currentIndex : 0;
+          state.completedExercises[today] = completedToday().filter(id => todayExerciseIds().includes(id));
           setInputFromHistory();
           save();
           renderAll();
@@ -754,6 +1131,9 @@
         const currentId = currentExercise().id;
         state.exercises = state.exercises.filter(exercise => exercise.id !== button.dataset.deleteExercise);
         state.workoutPlans[today] = todayExerciseIds().filter(id => id !== button.dataset.deleteExercise);
+        state.completedExercises[today] = completedToday().filter(id => id !== button.dataset.deleteExercise);
+        delete state.exerciseNotes[button.dataset.deleteExercise];
+        state.templates.forEach(template => { template.exerciseIds = template.exerciseIds.filter(id => id !== button.dataset.deleteExercise); });
         const currentIndex = workoutExercises().findIndex(exercise => exercise.id === currentId);
         state.currentExercise = currentIndex >= 0 ? currentIndex : 0;
         save();
@@ -784,6 +1164,7 @@
 
       $('#reset-data').addEventListener('click', () => {
         if (!confirm('Удалить всю историю и вернуть демонстрационные данные?')) return;
+        clearInterval(restTimerInterval);
         state = createInitialState();
         save();
         renderAll();
@@ -793,11 +1174,13 @@
 
       window.addEventListener('keydown', event => {
         if (event.target.matches('input, select, textarea')) return;
-        if (event.key === 'ArrowLeft' && !dialog.open) changeExercise(-1);
-        if (event.key === 'ArrowRight' && !dialog.open) changeExercise(1);
+        const modalOpen = [dialog, editSetDialog, noteDialog, templateDialog].some(item => item.open);
+        if (event.key === 'ArrowLeft' && !modalOpen) changeExercise(-1);
+        if (event.key === 'ArrowRight' && !modalOpen) changeExercise(1);
       });
 
       renderAll();
+      if (state.restTimer?.endAt > Date.now()) restTimerInterval = setInterval(renderRestTimer, 1000);
 
       function registerModelTools() {
         const context = document.modelContext;
@@ -817,6 +1200,8 @@
               exercises: workoutExercises().map(exercise => ({
                 id: exercise.id,
                 name: exercise.name,
+                note: state.exerciseNotes[exercise.id] || '',
+                completed: completedToday().includes(exercise.id),
                 sets: setsFor(today, exercise.id)
               }))
             };
