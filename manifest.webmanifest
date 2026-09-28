@@ -1,0 +1,18 @@
+{
+  "name": "Подход — дневник тренировок",
+  "short_name": "Подход",
+  "description": "Быстрый дневник веса, повторений и подходов",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#0b0d11",
+  "theme_color": "#0b0d11",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

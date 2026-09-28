@@ -1,0 +1,737 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0b0d11">
+  <meta name="description" content="Личный дневник тренировок с быстрым вводом веса и повторений">
+  <title>Подход</title>
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%231769e0'/%3E%3Cpath d='M14 25v14M20 21v22M44 21v22M50 25v14M20 32h24' fill='none' stroke='white' stroke-width='6' stroke-linecap='round'/%3E%3C/svg%3E">
+  <link rel="apple-touch-icon" href="./icon.svg">
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b0d11;
+      --surface: #15181e;
+      --surface-2: #20242d;
+      --surface-3: #292e39;
+      --text: #f4f6f8;
+      --muted: #949ca8;
+      --border: #2b303a;
+      --accent: #5b9cff;
+      --accent-strong: #2878ee;
+      --accent-soft: #122b4f;
+      --success: #61d69b;
+      --danger: #ff7c7c;
+      --shadow: 0 22px 60px rgba(0, 0, 0, .38);
+      font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 16px;
+    }
+
+    * { box-sizing: border-box; }
+    html { background: var(--bg); }
+    body {
+      margin: 0;
+      min-height: 100dvh;
+      background:
+        radial-gradient(circle at 20% -10%, rgba(40, 120, 238, .18), transparent 38%),
+        var(--bg);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    button, input, select { font: inherit; }
+    button { cursor: pointer; }
+    button:focus-visible, input:focus-visible, select:focus-visible {
+      outline: 3px solid rgba(91, 156, 255, .55);
+      outline-offset: 2px;
+    }
+
+    .app {
+      width: min(100%, 540px);
+      min-height: 100dvh;
+      margin: 0 auto;
+      padding: env(safe-area-inset-top) 16px calc(92px + env(safe-area-inset-bottom));
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 22px 2px 14px;
+    }
+
+    h1, h2, h3, p { margin: 0; }
+    h1 { font-size: 1.65rem; line-height: 1.1; font-weight: 650; letter-spacing: -.03em; }
+    h2 { font-size: 1.15rem; font-weight: 650; letter-spacing: -.015em; }
+    h3 { font-size: 1rem; font-weight: 650; }
+    .meta { margin-top: 5px; color: var(--muted); font-size: .82rem; line-height: 1.35; }
+
+    .icon-button, .step-button, .nav-button, .round-button, .set-delete {
+      border: 0;
+      color: inherit;
+      background: var(--surface-2);
+      display: inline-grid;
+      place-items: center;
+    }
+
+    .icon-button, .round-button {
+      width: 46px;
+      min-width: 46px;
+      height: 46px;
+      border-radius: 15px;
+    }
+
+    .icon-button svg, .round-button svg, .nav-button svg { width: 21px; height: 21px; }
+
+    .exercise-switcher {
+      display: grid;
+      grid-template-columns: 46px minmax(0, 1fr) 46px;
+      gap: 10px;
+      align-items: center;
+      padding: 8px 0 15px;
+      text-align: center;
+    }
+
+    .exercise-name { font-size: 1.13rem; font-weight: 650; line-height: 1.25; }
+    .exercise-count { margin-top: 4px; color: var(--muted); font-size: .78rem; }
+
+    .comparison {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 9px;
+      margin-bottom: 10px;
+    }
+
+    .comparison-card {
+      min-width: 0;
+      padding: 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 19px;
+    }
+
+    .comparison-card.current { background: var(--accent-soft); border-color: rgba(91, 156, 255, .25); }
+    .comparison-label { color: var(--muted); font-size: .76rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .comparison-value { margin-top: 7px; font-size: 1.12rem; font-weight: 650; font-variant-numeric: tabular-nums; }
+
+    .entry-card {
+      padding: 17px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 23px;
+      box-shadow: var(--shadow);
+    }
+
+    .field-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 12px;
+      margin-bottom: 9px;
+      color: var(--muted);
+      font-size: .82rem;
+    }
+
+    .field-delta { color: var(--accent); font-weight: 600; text-align: right; }
+
+    .stepper {
+      display: grid;
+      grid-template-columns: 52px 1fr 52px;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 17px;
+    }
+
+    .step-button {
+      width: 52px;
+      height: 52px;
+      border-radius: 16px;
+      font-size: 1.45rem;
+      font-weight: 500;
+    }
+
+    .step-button:active, .icon-button:active, .round-button:active { transform: scale(.97); }
+    .step-value { text-align: center; font-size: 2.15rem; font-weight: 650; font-variant-numeric: tabular-nums; letter-spacing: -.04em; }
+    .step-value small { margin-left: 3px; color: var(--muted); font-size: .88rem; font-weight: 500; letter-spacing: 0; }
+
+    .primary-button {
+      width: 100%;
+      min-height: 52px;
+      border: 0;
+      border-radius: 16px;
+      background: linear-gradient(180deg, var(--accent), var(--accent-strong));
+      color: #fff;
+      font-weight: 650;
+      box-shadow: 0 10px 24px rgba(40, 120, 238, .24);
+    }
+
+    .primary-button:active { transform: translateY(1px); }
+    .sets { margin-top: 13px; padding: 0 10px; }
+    .set-row {
+      display: grid;
+      grid-template-columns: 30px 1fr auto 40px;
+      align-items: center;
+      gap: 8px;
+      min-height: 54px;
+      border-bottom: 1px solid var(--border);
+    }
+    .set-row:last-child { border-bottom: 0; }
+    .set-index { color: var(--muted); font-variant-numeric: tabular-nums; }
+    .set-value { font-weight: 650; font-variant-numeric: tabular-nums; }
+    .set-status { color: var(--success); font-size: .78rem; }
+    .set-delete { width: 40px; height: 40px; border-radius: 12px; background: transparent; color: var(--muted); }
+
+    .empty-state {
+      padding: 22px 12px 8px;
+      color: var(--muted);
+      text-align: center;
+      font-size: .88rem;
+      line-height: 1.5;
+    }
+
+    .bottom-nav {
+      position: fixed;
+      z-index: 20;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: min(100%, 540px);
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      padding: 9px 16px calc(10px + env(safe-area-inset-bottom));
+      background: rgba(11, 13, 17, .88);
+      border-top: 1px solid rgba(255, 255, 255, .06);
+      backdrop-filter: blur(20px);
+    }
+
+    .nav-button {
+      min-height: 58px;
+      gap: 4px;
+      border-radius: 15px;
+      background: transparent;
+      color: var(--muted);
+      font-size: .72rem;
+    }
+
+    .nav-button.active { background: var(--accent-soft); color: var(--accent); }
+    .panel[hidden] { display: none; }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 8px 2px 14px;
+    }
+
+    .history-list { display: grid; gap: 10px; }
+    .history-card {
+      padding: 16px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+    }
+    .history-date { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; margin-bottom: 12px; }
+    .history-date strong { font-weight: 650; }
+    .history-date span { color: var(--muted); font-size: .78rem; }
+    .history-exercise { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; padding: 9px 0; border-top: 1px solid var(--border); }
+    .history-exercise-name { min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+    .history-values { color: var(--muted); text-align: right; font-variant-numeric: tabular-nums; }
+
+    .progress-picker { width: 100%; min-height: 48px; padding: 0 14px; border: 1px solid var(--border); border-radius: 15px; background: var(--surface); color: var(--text); }
+    .progress-card { margin-top: 12px; padding: 18px; background: var(--surface); border: 1px solid var(--border); border-radius: 22px; }
+    .progress-kpi { display: flex; justify-content: space-between; align-items: end; gap: 12px; }
+    .progress-kpi strong { font-size: 1.75rem; font-weight: 650; font-variant-numeric: tabular-nums; }
+    .progress-kpi span { color: var(--success); font-size: .85rem; }
+    .chart { height: 220px; margin-top: 20px; display: flex; align-items: end; gap: 10px; padding-top: 20px; border-bottom: 1px solid var(--border); }
+    .bar-column { flex: 1; min-width: 0; height: 100%; display: grid; grid-template-rows: 1fr auto; align-items: end; gap: 8px; }
+    .bar-area { height: 100%; display: flex; align-items: end; justify-content: center; }
+    .bar { width: min(36px, 74%); min-height: 8px; border-radius: 9px 9px 3px 3px; background: linear-gradient(180deg, var(--accent), var(--accent-strong)); position: relative; }
+    .bar-value { position: absolute; top: -24px; left: 50%; transform: translateX(-50%); color: var(--text); font-size: .75rem; font-variant-numeric: tabular-nums; }
+    .bar-label { color: var(--muted); font-size: .68rem; text-align: center; white-space: nowrap; }
+
+    dialog {
+      width: min(calc(100% - 24px), 500px);
+      max-height: min(720px, calc(100dvh - 30px));
+      padding: 0;
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      background: var(--surface);
+      color: var(--text);
+      box-shadow: var(--shadow);
+    }
+    dialog::backdrop { background: rgba(0, 0, 0, .72); backdrop-filter: blur(6px); }
+    .dialog-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 18px; border-bottom: 1px solid var(--border); }
+    .dialog-body { padding: 16px 18px 22px; overflow: auto; }
+    .exercise-editor { display: grid; grid-template-columns: 1fr 44px; gap: 8px; margin-bottom: 9px; }
+    .text-input { min-width: 0; min-height: 46px; padding: 0 13px; border: 1px solid var(--border); border-radius: 13px; background: var(--surface-2); color: var(--text); }
+    .secondary-button, .danger-button { width: 100%; min-height: 48px; margin-top: 10px; border-radius: 14px; border: 1px solid var(--border); background: var(--surface-2); color: var(--text); font-weight: 600; }
+    .danger-button { color: var(--danger); }
+    .toast { position: fixed; z-index: 40; left: 50%; bottom: calc(92px + env(safe-area-inset-bottom)); transform: translate(-50%, 18px); max-width: calc(100% - 32px); padding: 11px 16px; border: 1px solid var(--border); border-radius: 13px; background: var(--surface-3); color: var(--text); opacity: 0; pointer-events: none; transition: .2s ease; box-shadow: var(--shadow); }
+    .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+    @media (min-width: 760px) {
+      body { padding: 24px 0; }
+      .app { min-height: calc(100dvh - 48px); border: 1px solid var(--border); border-radius: 32px; background: rgba(11, 13, 17, .72); box-shadow: var(--shadow); }
+      .bottom-nav { bottom: 24px; border: 1px solid var(--border); border-radius: 0 0 32px 32px; }
+    }
+
+    @media (max-width: 360px) {
+      .app { padding-inline: 12px; }
+      .comparison { grid-template-columns: 1fr; }
+      .step-value { font-size: 1.85rem; }
+      .bottom-nav { padding-inline: 10px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <section class="panel" id="workout-panel" aria-labelledby="workout-tab">
+      <header class="topbar">
+        <div>
+          <h1>Сегодня</h1>
+          <p class="meta" id="today-label"></p>
+        </div>
+        <button class="icon-button" id="settings-button" type="button" aria-label="Настроить упражнения">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2.83 2.83-.06-.06A1.7 1.7 0 0 0 15 19.37a1.7 1.7 0 0 0-1 .63 1.7 1.7 0 0 0-.4 1.1V21h-4v-.09A1.7 1.7 0 0 0 8.53 19.4a1.7 1.7 0 0 0-1.88.34l-.06.06-2.83-2.83.06-.06A1.7 1.7 0 0 0 4.16 15a1.7 1.7 0 0 0-.63-1 1.7 1.7 0 0 0-1.1-.4H2.3v-4h.09A1.7 1.7 0 0 0 3.9 8.53a1.7 1.7 0 0 0-.34-1.88l-.06-.06 2.83-2.83.06.06A1.7 1.7 0 0 0 8.3 4.16a1.7 1.7 0 0 0 1-.63 1.7 1.7 0 0 0 .4-1.1V2.3h4v.09A1.7 1.7 0 0 0 14.77 3.9a1.7 1.7 0 0 0 1.88-.34l.06-.06 2.83 2.83-.06.06a1.7 1.7 0 0 0-.34 1.91 1.7 1.7 0 0 0 .63 1 1.7 1.7 0 0 0 1.1.4H21v4h-.09A1.7 1.7 0 0 0 19.4 15Z"/></svg>
+        </button>
+      </header>
+
+      <div class="exercise-switcher">
+        <button class="round-button" id="previous-exercise" type="button" aria-label="Предыдущее упражнение">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+        </button>
+        <div>
+          <div class="exercise-name" id="exercise-name"></div>
+          <div class="exercise-count" id="exercise-count"></div>
+        </div>
+        <button class="round-button" id="next-exercise" type="button" aria-label="Следующее упражнение">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
+      </div>
+
+      <div class="comparison" aria-label="Сравнение тренировок">
+        <div class="comparison-card">
+          <div class="comparison-label" id="previous-label">Прошлый раз</div>
+          <div class="comparison-value" id="previous-value">—</div>
+        </div>
+        <div class="comparison-card current">
+          <div class="comparison-label">Сегодня · лучший</div>
+          <div class="comparison-value" id="current-value">—</div>
+        </div>
+      </div>
+
+      <section class="entry-card" aria-label="Добавление подхода">
+        <div class="field-header"><span>Вес</span><span class="field-delta" id="weight-delta"></span></div>
+        <div class="stepper">
+          <button class="step-button" type="button" data-change="weight" data-delta="-2.5" aria-label="Уменьшить вес на 2,5 килограмма">−</button>
+          <div class="step-value"><span id="weight-value">0</span><small>кг</small></div>
+          <button class="step-button" type="button" data-change="weight" data-delta="2.5" aria-label="Увеличить вес на 2,5 килограмма">+</button>
+        </div>
+
+        <div class="field-header"><span>Повторения</span><span class="field-delta" id="reps-target"></span></div>
+        <div class="stepper">
+          <button class="step-button" type="button" data-change="reps" data-delta="-1" aria-label="Уменьшить повторения">−</button>
+          <div class="step-value"><span id="reps-value">10</span></div>
+          <button class="step-button" type="button" data-change="reps" data-delta="1" aria-label="Увеличить повторения">+</button>
+        </div>
+
+        <button class="primary-button" id="add-set" type="button">Записать подход</button>
+      </section>
+
+      <div class="sets" id="sets-list" aria-live="polite"></div>
+    </section>
+
+    <section class="panel" id="history-panel" aria-labelledby="history-tab" hidden>
+      <header class="topbar"><div><h1>История</h1><p class="meta">Все тренировки по дням</p></div></header>
+      <div class="history-list" id="history-list"></div>
+    </section>
+
+    <section class="panel" id="progress-panel" aria-labelledby="progress-tab" hidden>
+      <header class="topbar"><div><h1>Прогресс</h1><p class="meta">Лучший вес за тренировку</p></div></header>
+      <select class="progress-picker" id="progress-exercise" aria-label="Упражнение для графика"></select>
+      <div class="progress-card" id="progress-card"></div>
+    </section>
+  </div>
+
+  <nav class="bottom-nav" aria-label="Разделы приложения">
+    <button class="nav-button active" id="workout-tab" type="button" data-panel="workout" aria-current="page">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 7v10M3 9v6M18 7v10M21 9v6M6 12h12"/></svg><span>Тренировка</span>
+    </button>
+    <button class="nav-button" id="history-tab" type="button" data-panel="history">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M8 2v4M16 2v4M3 10h18M5 4h14a2 2 0 0 1 2 2v15H3V6a2 2 0 0 1 2-2Z"/></svg><span>История</span>
+    </button>
+    <button class="nav-button" id="progress-tab" type="button" data-panel="progress">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 19V9M10 19V5M16 19v-7M22 19V2"/></svg><span>Прогресс</span>
+    </button>
+  </nav>
+
+  <dialog id="settings-dialog">
+    <div class="dialog-head"><h2>Упражнения</h2><button class="icon-button" id="close-settings" type="button" aria-label="Закрыть настройки">×</button></div>
+    <div class="dialog-body">
+      <div id="exercise-editors"></div>
+      <button class="secondary-button" id="add-exercise" type="button">Добавить упражнение</button>
+      <button class="secondary-button" id="export-data" type="button">Скачать резервную копию</button>
+      <button class="danger-button" id="reset-data" type="button">Очистить все данные</button>
+    </div>
+  </dialog>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    (() => {
+      const STORAGE_KEY = 'podhod-gym-log-v1';
+      const DAY = 86400000;
+      const dateKey = date => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+      const parseDate = key => { const [y, m, d] = key.split('-').map(Number); return new Date(y, m - 1, d); };
+      const formatWeight = value => Number(value).toLocaleString('ru-RU', { maximumFractionDigits: 1 });
+      const formatDate = key => new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'long' }).format(parseDate(key));
+      const today = dateKey(new Date());
+      const previousDay = dateKey(new Date(Date.now() - 4 * DAY));
+
+      const createInitialState = () => ({
+        currentExercise: 1,
+        input: { weight: 57.5, reps: 10 },
+        exercises: [
+          { id: 'leg-press', name: 'Жим ногами' },
+          { id: 'chest-press', name: 'Жим в тренажёре' },
+          { id: 'lat-pulldown', name: 'Тяга верхнего блока' },
+          { id: 'leg-curl', name: 'Сгибание ног' },
+          { id: 'pec-deck', name: 'Разведение рук' }
+        ],
+        sessions: {
+          [previousDay]: {
+            'leg-press': [{ weight: 120, reps: 12 }, { weight: 120, reps: 11 }, { weight: 115, reps: 12 }],
+            'chest-press': [{ weight: 55, reps: 10 }, { weight: 55, reps: 9 }, { weight: 52.5, reps: 11 }],
+            'lat-pulldown': [{ weight: 50, reps: 11 }, { weight: 50, reps: 10 }],
+            'leg-curl': [{ weight: 35, reps: 12 }, { weight: 35, reps: 11 }],
+            'pec-deck': [{ weight: 30, reps: 15 }, { weight: 30, reps: 13 }]
+          },
+          [today]: {
+            'leg-press': [{ weight: 125, reps: 12 }, { weight: 125, reps: 11 }],
+            'chest-press': [{ weight: 57.5, reps: 10 }, { weight: 57.5, reps: 9 }]
+          }
+        }
+      });
+
+      function loadState() {
+        try {
+          const stored = JSON.parse(localStorage.getItem(STORAGE_KEY));
+          if (stored?.exercises?.length && stored.sessions) return stored;
+        } catch (_) {}
+        return createInitialState();
+      }
+
+      let state = loadState();
+      let toastTimer;
+      const $ = selector => document.querySelector(selector);
+      const $$ = selector => [...document.querySelectorAll(selector)];
+
+      function save() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      }
+
+      function showToast(message) {
+        const toast = $('#toast');
+        toast.textContent = message;
+        toast.classList.add('show');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => toast.classList.remove('show'), 1800);
+      }
+
+      function currentExercise() {
+        if (state.currentExercise >= state.exercises.length) state.currentExercise = 0;
+        return state.exercises[state.currentExercise];
+      }
+
+      function setsFor(day, exerciseId) {
+        return state.sessions[day]?.[exerciseId] || [];
+      }
+
+      function previousSession(exerciseId) {
+        return Object.keys(state.sessions)
+          .filter(day => day < today && setsFor(day, exerciseId).length)
+          .sort().reverse()
+          .map(day => ({ day, sets: setsFor(day, exerciseId) }))[0] || null;
+      }
+
+      function bestSet(sets) {
+        return sets.reduce((best, set) => !best || set.weight > best.weight || (set.weight === best.weight && set.reps > best.reps) ? set : best, null);
+      }
+
+      function setInputFromHistory() {
+        const exercise = currentExercise();
+        const todaySets = setsFor(today, exercise.id);
+        const source = todaySets.at(-1) || bestSet(previousSession(exercise.id)?.sets || []);
+        if (source) state.input = { weight: source.weight, reps: source.reps };
+      }
+
+      function renderWorkout() {
+        const exercise = currentExercise();
+        const todaySets = setsFor(today, exercise.id);
+        const previous = previousSession(exercise.id);
+        const previousBest = bestSet(previous?.sets || []);
+        const currentBest = bestSet(todaySets);
+
+        $('#today-label').textContent = `${new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'long', weekday: 'short' }).format(new Date())} · ${state.exercises.length} упражнений`;
+        $('#exercise-name').textContent = exercise.name;
+        $('#exercise-count').textContent = `Упражнение ${state.currentExercise + 1} из ${state.exercises.length}`;
+        $('#weight-value').textContent = formatWeight(state.input.weight);
+        $('#reps-value').textContent = state.input.reps;
+        $('#previous-label').textContent = previous ? `Прошлый раз · ${formatDate(previous.day)}` : 'Прошлый раз';
+        $('#previous-value').textContent = previousBest ? `${formatWeight(previousBest.weight)} кг × ${previousBest.reps}` : 'Нет данных';
+        $('#current-value').textContent = currentBest ? `${formatWeight(currentBest.weight)} кг × ${currentBest.reps}` : 'Пока нет';
+
+        const delta = previousBest ? state.input.weight - previousBest.weight : 0;
+        $('#weight-delta').textContent = previousBest ? (delta === 0 ? 'как в прошлый раз' : `${delta > 0 ? '+' : ''}${formatWeight(delta)} кг к прошлому разу`) : '';
+        $('#reps-target').textContent = previousBest ? `прошлый результат: ${previousBest.reps}` : '';
+
+        $('#sets-list').innerHTML = todaySets.length ? todaySets.map((set, index) => `
+          <div class="set-row">
+            <span class="set-index">${index + 1}</span>
+            <span class="set-value">${formatWeight(set.weight)} кг × ${set.reps}</span>
+            <span class="set-status">готово</span>
+            <button class="set-delete" type="button" data-delete-set="${index}" aria-label="Удалить подход ${index + 1}">×</button>
+          </div>`).join('') : '<div class="empty-state">Подходов пока нет. Вес подставлен из прошлой тренировки.</div>';
+      }
+
+      function renderHistory() {
+        const days = Object.keys(state.sessions).filter(day => Object.values(state.sessions[day]).some(sets => sets.length)).sort().reverse();
+        $('#history-list').innerHTML = days.length ? days.map(day => {
+          const rows = state.exercises.map(exercise => {
+            const sets = setsFor(day, exercise.id);
+            if (!sets.length) return '';
+            return `<div class="history-exercise"><span class="history-exercise-name">${escapeHtml(exercise.name)}</span><span class="history-values">${sets.map(set => `${formatWeight(set.weight)}×${set.reps}`).join(' · ')}</span></div>`;
+          }).join('');
+          const total = Object.values(state.sessions[day]).reduce((sum, sets) => sum + sets.length, 0);
+          return `<article class="history-card"><div class="history-date"><strong>${day === today ? 'Сегодня' : formatDate(day)}</strong><span>${total} подходов</span></div>${rows}</article>`;
+        }).join('') : '<div class="empty-state">История появится после первой тренировки.</div>';
+      }
+
+      function renderProgressPicker() {
+        const select = $('#progress-exercise');
+        const selected = select.value || currentExercise().id;
+        select.innerHTML = state.exercises.map(exercise => `<option value="${exercise.id}">${escapeHtml(exercise.name)}</option>`).join('');
+        select.value = state.exercises.some(exercise => exercise.id === selected) ? selected : state.exercises[0].id;
+        renderProgress();
+      }
+
+      function renderProgress() {
+        const id = $('#progress-exercise').value || state.exercises[0].id;
+        const points = Object.keys(state.sessions).sort().map(day => ({ day, best: bestSet(setsFor(day, id)) })).filter(point => point.best).slice(-7);
+        const card = $('#progress-card');
+        if (!points.length) {
+          card.innerHTML = '<div class="empty-state">Добавь подходы, чтобы увидеть прогресс.</div>';
+          return;
+        }
+        const maximum = Math.max(...points.map(point => point.best.weight), 1);
+        const first = points[0].best.weight;
+        const last = points.at(-1).best.weight;
+        const delta = last - first;
+        card.innerHTML = `
+          <div class="progress-kpi"><div><div class="meta">Текущий максимум</div><strong>${formatWeight(last)} кг</strong></div><span>${delta === 0 ? 'без изменений' : `${delta > 0 ? '+' : ''}${formatWeight(delta)} кг`}</span></div>
+          <div class="chart" role="img" aria-label="График максимального веса по тренировкам">
+            ${points.map(point => `<div class="bar-column"><div class="bar-area"><div class="bar" style="height:${Math.max(8, point.best.weight / maximum * 100)}%"><span class="bar-value">${formatWeight(point.best.weight)}</span></div></div><div class="bar-label">${new Intl.DateTimeFormat('ru-RU', { day: '2-digit', month: '2-digit' }).format(parseDate(point.day))}</div></div>`).join('')}
+          </div>`;
+      }
+
+      function escapeHtml(value) {
+        return String(value).replace(/[&<>'"]/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[char]);
+      }
+
+      function renderSettings() {
+        $('#exercise-editors').innerHTML = state.exercises.map((exercise, index) => `
+          <div class="exercise-editor">
+            <input class="text-input" value="${escapeHtml(exercise.name)}" data-exercise-name="${exercise.id}" aria-label="Название упражнения ${index + 1}">
+            <button class="set-delete" type="button" data-delete-exercise="${exercise.id}" aria-label="Удалить ${escapeHtml(exercise.name)}">×</button>
+          </div>`).join('');
+      }
+
+      function renderAll() {
+        renderWorkout();
+        renderHistory();
+        renderProgressPicker();
+        renderSettings();
+      }
+
+      $$('[data-change]').forEach(button => button.addEventListener('click', () => {
+        const field = button.dataset.change;
+        const delta = Number(button.dataset.delta);
+        const minimum = field === 'weight' ? 0 : 1;
+        state.input[field] = Math.max(minimum, Number((state.input[field] + delta).toFixed(1)));
+        save();
+        renderWorkout();
+      }));
+
+      function addSetToExercise(exerciseId, weight, reps) {
+        const exercise = state.exercises.find(item => item.id === exerciseId);
+        if (!exercise) throw new Error('Упражнение не найдено');
+        if (!Number.isFinite(weight) || weight < 0 || weight > 1000) throw new Error('Вес должен быть числом от 0 до 1000');
+        if (!Number.isInteger(reps) || reps < 1 || reps > 1000) throw new Error('Повторения должны быть целым числом от 1 до 1000');
+        state.sessions[today] ||= {};
+        state.sessions[today][exercise.id] ||= [];
+        state.sessions[today][exercise.id].push({ weight, reps });
+        save();
+        renderAll();
+        return { date: today, exercise: exercise.name, weight, reps, setNumber: state.sessions[today][exercise.id].length };
+      }
+
+      $('#add-set').addEventListener('click', () => {
+        const exercise = currentExercise();
+        addSetToExercise(exercise.id, state.input.weight, state.input.reps);
+        showToast('Подход сохранён');
+        if (navigator.vibrate) navigator.vibrate(30);
+      });
+
+      $('#sets-list').addEventListener('click', event => {
+        const button = event.target.closest('[data-delete-set]');
+        if (!button) return;
+        setsFor(today, currentExercise().id).splice(Number(button.dataset.deleteSet), 1);
+        save();
+        renderAll();
+        showToast('Подход удалён');
+      });
+
+      function changeExercise(delta) {
+        state.currentExercise = (state.currentExercise + delta + state.exercises.length) % state.exercises.length;
+        setInputFromHistory();
+        save();
+        renderWorkout();
+      }
+
+      $('#previous-exercise').addEventListener('click', () => changeExercise(-1));
+      $('#next-exercise').addEventListener('click', () => changeExercise(1));
+
+      $$('.nav-button').forEach(button => button.addEventListener('click', () => {
+        const panel = button.dataset.panel;
+        $$('.nav-button').forEach(item => { item.classList.toggle('active', item === button); item.removeAttribute('aria-current'); });
+        button.setAttribute('aria-current', 'page');
+        $$('.panel').forEach(item => item.hidden = item.id !== `${panel}-panel`);
+        if (panel === 'history') renderHistory();
+        if (panel === 'progress') renderProgressPicker();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }));
+
+      const dialog = $('#settings-dialog');
+      $('#settings-button').addEventListener('click', () => { renderSettings(); dialog.showModal(); });
+      $('#close-settings').addEventListener('click', () => dialog.close());
+      dialog.addEventListener('click', event => { if (event.target === dialog) dialog.close(); });
+
+      $('#exercise-editors').addEventListener('change', event => {
+        const id = event.target.dataset.exerciseName;
+        if (!id) return;
+        const exercise = state.exercises.find(item => item.id === id);
+        if (exercise && event.target.value.trim()) exercise.name = event.target.value.trim();
+        save();
+        renderAll();
+      });
+
+      $('#exercise-editors').addEventListener('click', event => {
+        const button = event.target.closest('[data-delete-exercise]');
+        if (!button || state.exercises.length === 1) return;
+        state.exercises = state.exercises.filter(exercise => exercise.id !== button.dataset.deleteExercise);
+        state.currentExercise = Math.min(state.currentExercise, state.exercises.length - 1);
+        save();
+        renderAll();
+      });
+
+      $('#add-exercise').addEventListener('click', () => {
+        const id = `exercise-${Date.now()}`;
+        state.exercises.push({ id, name: 'Новое упражнение' });
+        state.currentExercise = state.exercises.length - 1;
+        save();
+        renderAll();
+        requestAnimationFrame(() => { const input = document.querySelector(`[data-exercise-name="${id}"]`); input?.focus(); input?.select(); });
+      });
+
+      $('#progress-exercise').addEventListener('change', renderProgress);
+
+      $('#export-data').addEventListener('click', () => {
+        const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `podhod-backup-${today}.json`;
+        link.click();
+        URL.revokeObjectURL(link.href);
+        showToast('Резервная копия скачана');
+      });
+
+      $('#reset-data').addEventListener('click', () => {
+        if (!confirm('Удалить всю историю и вернуть демонстрационные данные?')) return;
+        state = createInitialState();
+        save();
+        renderAll();
+        dialog.close();
+        showToast('Данные сброшены');
+      });
+
+      window.addEventListener('keydown', event => {
+        if (event.key === 'ArrowLeft' && !dialog.open) changeExercise(-1);
+        if (event.key === 'ArrowRight' && !dialog.open) changeExercise(1);
+      });
+
+      renderAll();
+
+      function registerModelTools() {
+        const context = document.modelContext;
+        if (!context?.registerTool) return;
+        const lifecycle = new AbortController();
+        const resolveExercise = value => state.exercises.find(item => item.id === value || item.name.toLowerCase() === String(value).toLowerCase());
+
+        Promise.resolve(context.registerTool({
+          name: 'read_current_workout',
+          title: 'Текущая тренировка',
+          description: 'Прочитать сегодняшние упражнения и записанные подходы без изменения данных.',
+          inputSchema: { type: 'object', properties: {}, additionalProperties: false },
+          annotations: { readOnlyHint: true, untrustedContentHint: false },
+          execute() {
+            return {
+              date: today,
+              exercises: state.exercises.map(exercise => ({
+                id: exercise.id,
+                name: exercise.name,
+                sets: setsFor(today, exercise.id)
+              }))
+            };
+          }
+        }, { signal: lifecycle.signal })).catch(() => {});
+
+        Promise.resolve(context.registerTool({
+          name: 'log_workout_set',
+          title: 'Записать подход',
+          description: 'Записать выполненный сегодня подход для существующего упражнения и сразу обновить дневник.',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              exercise: { type: 'string', description: 'Название или идентификатор упражнения' },
+              weight: { type: 'number', minimum: 0, maximum: 1000 },
+              reps: { type: 'integer', minimum: 1, maximum: 1000 }
+            },
+            required: ['exercise', 'weight', 'reps'],
+            additionalProperties: false
+          },
+          annotations: { readOnlyHint: false, untrustedContentHint: false },
+          execute(input) {
+            if (!input || typeof input.exercise !== 'string') throw new Error('Нужно указать упражнение');
+            const exercise = resolveExercise(input.exercise.trim());
+            if (!exercise) throw new Error('Упражнение не найдено');
+            return addSetToExercise(exercise.id, Number(input.weight), Number(input.reps));
+          }
+        }, { signal: lifecycle.signal })).catch(() => {});
+      }
+
+      registerModelTools();
+      if ('serviceWorker' in navigator) navigator.serviceWorker.register('./service-worker.js').catch(() => {});
+    })();
+  </script>
+</body>
+</html>
