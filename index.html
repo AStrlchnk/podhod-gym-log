@@ -157,6 +157,23 @@
     .step-button:active, .icon-button:active, .round-button:active { transform: scale(.97); }
     .step-value { text-align: center; font-size: 2.15rem; font-weight: 650; font-variant-numeric: tabular-nums; letter-spacing: -.04em; }
     .step-value small { margin-left: 3px; color: var(--muted); font-size: .88rem; font-weight: 500; letter-spacing: 0; }
+    .weight-entry { display: flex; align-items: baseline; justify-content: center; min-width: 0; }
+    .weight-input {
+      width: 5ch;
+      min-width: 0;
+      padding: 0;
+      border: 0;
+      border-bottom: 1px dashed transparent;
+      border-radius: 0;
+      background: transparent;
+      color: var(--text);
+      text-align: right;
+      font: inherit;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: inherit;
+      appearance: none;
+    }
+    .weight-input:hover, .weight-input:focus { border-bottom-color: var(--accent); }
 
     .primary-button {
       width: 100%;
@@ -334,7 +351,7 @@
         <div class="field-header"><span>Вес</span><span class="field-delta" id="weight-delta"></span></div>
         <div class="stepper">
           <button class="step-button" type="button" data-change="weight" data-delta="-2.5" aria-label="Уменьшить вес на 2,5 килограмма">−</button>
-          <div class="step-value"><span id="weight-value">0</span><small>кг</small></div>
+          <label class="step-value weight-entry"><input class="weight-input" id="weight-input" type="text" inputmode="decimal" autocomplete="off" aria-label="Вес в килограммах" value="0"><small>кг</small></label>
           <button class="step-button" type="button" data-change="weight" data-delta="2.5" aria-label="Увеличить вес на 2,5 килограмма">+</button>
         </div>
 
@@ -485,7 +502,7 @@
         $('#today-label').textContent = `${new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'long', weekday: 'short' }).format(new Date())} · ${state.exercises.length} упражнений`;
         $('#exercise-name').textContent = exercise.name;
         $('#exercise-count').textContent = `Упражнение ${state.currentExercise + 1} из ${state.exercises.length}`;
-        $('#weight-value').textContent = formatWeight(state.input.weight);
+        $('#weight-input').value = formatWeight(state.input.weight);
         $('#reps-value').textContent = state.input.reps;
         $('#previous-label').textContent = previous ? `Прошлый раз · ${formatDate(previous.day)}` : 'Прошлый раз';
         $('#previous-value').textContent = previousBest ? `${formatWeight(previousBest.weight)} кг × ${previousBest.reps}` : 'Нет данных';
@@ -571,6 +588,29 @@
         save();
         renderWorkout();
       }));
+
+      function applyManualWeight() {
+        const input = $('#weight-input');
+        const weight = Number(input.value.trim().replace(',', '.'));
+        if (!Number.isFinite(weight) || weight < 0 || weight > 1000) {
+          input.value = formatWeight(state.input.weight);
+          showToast('Введите вес от 0 до 1000 кг');
+          return;
+        }
+        state.input.weight = Math.round(weight * 100) / 100;
+        save();
+        renderWorkout();
+      }
+
+      $('#weight-input').addEventListener('change', applyManualWeight);
+      $('#weight-input').addEventListener('focus', event => event.currentTarget.select());
+      $('#weight-input').addEventListener('keydown', event => {
+        if (event.key === 'Enter') {
+          event.preventDefault();
+          applyManualWeight();
+          event.currentTarget.blur();
+        }
+      });
 
       function addSetToExercise(exerciseId, weight, reps) {
         const exercise = state.exercises.find(item => item.id === exerciseId);
@@ -675,6 +715,7 @@
       });
 
       window.addEventListener('keydown', event => {
+        if (event.target.matches('input, select, textarea')) return;
         if (event.key === 'ArrowLeft' && !dialog.open) changeExercise(-1);
         if (event.key === 'ArrowRight' && !dialog.open) changeExercise(1);
       });
