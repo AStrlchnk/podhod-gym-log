@@ -285,7 +285,10 @@
     dialog::backdrop { background: rgba(0, 0, 0, .72); backdrop-filter: blur(6px); }
     .dialog-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 18px; border-bottom: 1px solid var(--border); }
     .dialog-body { padding: 16px 18px 22px; overflow: auto; }
-    .exercise-editor { display: grid; grid-template-columns: 1fr 44px; gap: 8px; margin-bottom: 9px; }
+    .exercise-summary { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; padding: 12px 14px; border-radius: 14px; background: var(--accent-soft); color: var(--accent); font-size: .88rem; }
+    .exercise-summary strong { color: var(--text); font-variant-numeric: tabular-nums; }
+    .exercise-editor { display: grid; grid-template-columns: 42px 1fr 44px; gap: 8px; margin-bottom: 9px; align-items: center; }
+    .today-checkbox { width: 24px; height: 24px; margin: 0 auto; accent-color: var(--accent-strong); }
     .text-input { min-width: 0; min-height: 46px; padding: 0 13px; border: 1px solid var(--border); border-radius: 13px; background: var(--surface-2); color: var(--text); }
     .secondary-button, .danger-button { width: 100%; min-height: 48px; margin-top: 10px; border-radius: 14px; border: 1px solid var(--border); background: var(--surface-2); color: var(--text); font-weight: 600; }
     .danger-button { color: var(--danger); }
@@ -393,10 +396,11 @@
   </nav>
 
   <dialog id="settings-dialog">
-    <div class="dialog-head"><h2>Упражнения</h2><button class="icon-button" id="close-settings" type="button" aria-label="Закрыть настройки">×</button></div>
+    <div class="dialog-head"><div><h2>Тренировка сегодня</h2><p class="meta">Отметь нужные упражнения</p></div><button class="icon-button" id="close-settings" type="button" aria-label="Закрыть настройки">×</button></div>
     <div class="dialog-body">
+      <div class="exercise-summary"><span>Выбрано сегодня</span><strong id="today-exercise-count"></strong></div>
       <div id="exercise-editors"></div>
-      <button class="secondary-button" id="add-exercise" type="button">Добавить упражнение</button>
+      <button class="secondary-button" id="add-exercise" type="button">Добавить в библиотеку</button>
       <button class="secondary-button" id="export-data" type="button">Скачать резервную копию</button>
       <button class="danger-button" id="reset-data" type="button">Очистить все данные</button>
     </div>
@@ -425,6 +429,9 @@
           { id: 'leg-curl', name: 'Сгибание ног' },
           { id: 'pec-deck', name: 'Разведение рук' }
         ],
+        workoutPlans: {
+          [today]: ['leg-press', 'chest-press', 'lat-pulldown', 'leg-curl', 'pec-deck']
+        },
         sessions: {
           [previousDay]: {
             'leg-press': [{ weight: 120, reps: 12 }, { weight: 120, reps: 11 }, { weight: 115, reps: 12 }],
@@ -443,7 +450,21 @@
       function loadState() {
         try {
           const stored = JSON.parse(localStorage.getItem(STORAGE_KEY));
-          if (stored?.exercises?.length && stored.sessions) return stored;
+          if (stored?.exercises?.length && stored.sessions) {
+            const validIds = new Set(stored.exercises.map(exercise => exercise.id));
+            stored.workoutPlans ||= {};
+            const previousPlan = Object.keys(stored.workoutPlans)
+              .filter(day => day < today && Array.isArray(stored.workoutPlans[day]))
+              .sort().reverse()
+              .map(day => stored.workoutPlans[day].filter(id => validIds.has(id)))
+              .find(plan => plan.length);
+            const selected = Array.isArray(stored.workoutPlans[today])
+              ? stored.workoutPlans[today].filter(id => validIds.has(id))
+              : previousPlan || stored.exercises.slice(0, 5).map(exercise => exercise.id);
+            stored.workoutPlans[today] = selected.length ? selected : [stored.exercises[0].id];
+            stored.currentExercise = Math.min(Math.max(Number(stored.currentExercise) || 0, 0), stored.workoutPlans[today].length - 1);
+            return stored;
+          }
         } catch (_) {}
         return createInitialState();
       }
@@ -465,9 +486,23 @@
         toastTimer = setTimeout(() => toast.classList.remove('show'), 1800);
       }
 
+      function todayExerciseIds() {
+        state.workoutPlans ||= {};
+        const validIds = new Set(state.exercises.map(exercise => exercise.id));
+        const selected = (state.workoutPlans[today] || []).filter(id => validIds.has(id));
+        state.workoutPlans[today] = selected.length ? selected : [state.exercises[0].id];
+        return state.workoutPlans[today];
+      }
+
+      function workoutExercises() {
+        const byId = new Map(state.exercises.map(exercise => [exercise.id, exercise]));
+        return todayExerciseIds().map(id => byId.get(id)).filter(Boolean);
+      }
+
       function currentExercise() {
-        if (state.currentExercise >= state.exercises.length) state.currentExercise = 0;
-        return state.exercises[state.currentExercise];
+        const exercises = workoutExercises();
+        if (state.currentExercise >= exercises.length) state.currentExercise = 0;
+        return exercises[state.currentExercise];
       }
 
       function setsFor(day, exerciseId) {
@@ -493,15 +528,16 @@
       }
 
       function renderWorkout() {
+        const exercises = workoutExercises();
         const exercise = currentExercise();
         const todaySets = setsFor(today, exercise.id);
         const previous = previousSession(exercise.id);
         const previousBest = bestSet(previous?.sets || []);
         const currentBest = bestSet(todaySets);
 
-        $('#today-label').textContent = `${new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'long', weekday: 'short' }).format(new Date())} · ${state.exercises.length} упражнений`;
+        $('#today-label').textContent = `${new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'long', weekday: 'short' }).format(new Date())} · ${exercises.length} упражнений сегодня`;
         $('#exercise-name').textContent = exercise.name;
-        $('#exercise-count').textContent = `Упражнение ${state.currentExercise + 1} из ${state.exercises.length}`;
+        $('#exercise-count').textContent = `Упражнение ${state.currentExercise + 1} из ${exercises.length}`;
         $('#weight-input').value = formatWeight(state.input.weight);
         $('#reps-value').textContent = state.input.reps;
         $('#previous-label').textContent = previous ? `Прошлый раз · ${formatDate(previous.day)}` : 'Прошлый раз';
@@ -566,8 +602,11 @@
       }
 
       function renderSettings() {
+        const selectedIds = new Set(todayExerciseIds());
+        $('#today-exercise-count').textContent = `${selectedIds.size} из ${state.exercises.length}`;
         $('#exercise-editors').innerHTML = state.exercises.map((exercise, index) => `
           <div class="exercise-editor">
+            <input class="today-checkbox" type="checkbox" data-today-exercise="${exercise.id}" ${selectedIds.has(exercise.id) ? 'checked' : ''} aria-label="Добавить ${escapeHtml(exercise.name)} в тренировку сегодня">
             <input class="text-input" value="${escapeHtml(exercise.name)}" data-exercise-name="${exercise.id}" aria-label="Название упражнения ${index + 1}">
             <button class="set-delete" type="button" data-delete-exercise="${exercise.id}" aria-label="Удалить ${escapeHtml(exercise.name)}">×</button>
           </div>`).join('');
@@ -642,7 +681,8 @@
       });
 
       function changeExercise(delta) {
-        state.currentExercise = (state.currentExercise + delta + state.exercises.length) % state.exercises.length;
+        const count = workoutExercises().length;
+        state.currentExercise = (state.currentExercise + delta + count) % count;
         setInputFromHistory();
         save();
         renderWorkout();
@@ -667,6 +707,26 @@
       dialog.addEventListener('click', event => { if (event.target === dialog) dialog.close(); });
 
       $('#exercise-editors').addEventListener('change', event => {
+        const todayExerciseId = event.target.dataset.todayExercise;
+        if (todayExerciseId) {
+          const currentId = currentExercise().id;
+          const selected = todayExerciseIds();
+          if (event.target.checked) {
+            if (!selected.includes(todayExerciseId)) selected.push(todayExerciseId);
+          } else if (selected.length === 1) {
+            event.target.checked = true;
+            showToast('Оставь хотя бы одно упражнение');
+            return;
+          } else {
+            state.workoutPlans[today] = selected.filter(id => id !== todayExerciseId);
+          }
+          const currentIndex = workoutExercises().findIndex(exercise => exercise.id === currentId);
+          state.currentExercise = currentIndex >= 0 ? currentIndex : 0;
+          setInputFromHistory();
+          save();
+          renderAll();
+          return;
+        }
         const id = event.target.dataset.exerciseName;
         if (!id) return;
         const exercise = state.exercises.find(item => item.id === id);
@@ -678,8 +738,11 @@
       $('#exercise-editors').addEventListener('click', event => {
         const button = event.target.closest('[data-delete-exercise]');
         if (!button || state.exercises.length === 1) return;
+        const currentId = currentExercise().id;
         state.exercises = state.exercises.filter(exercise => exercise.id !== button.dataset.deleteExercise);
-        state.currentExercise = Math.min(state.currentExercise, state.exercises.length - 1);
+        state.workoutPlans[today] = todayExerciseIds().filter(id => id !== button.dataset.deleteExercise);
+        const currentIndex = workoutExercises().findIndex(exercise => exercise.id === currentId);
+        state.currentExercise = currentIndex >= 0 ? currentIndex : 0;
         save();
         renderAll();
       });
@@ -687,7 +750,8 @@
       $('#add-exercise').addEventListener('click', () => {
         const id = `exercise-${Date.now()}`;
         state.exercises.push({ id, name: 'Новое упражнение' });
-        state.currentExercise = state.exercises.length - 1;
+        todayExerciseIds().push(id);
+        state.currentExercise = workoutExercises().length - 1;
         save();
         renderAll();
         requestAnimationFrame(() => { const input = document.querySelector(`[data-exercise-name="${id}"]`); input?.focus(); input?.select(); });
@@ -737,7 +801,7 @@
           execute() {
             return {
               date: today,
-              exercises: state.exercises.map(exercise => ({
+              exercises: workoutExercises().map(exercise => ({
                 id: exercise.id,
                 name: exercise.name,
                 sets: setsFor(today, exercise.id)
