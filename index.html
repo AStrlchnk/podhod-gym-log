@@ -415,6 +415,7 @@
       const dateKey = date => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
       const parseDate = key => { const [y, m, d] = key.split('-').map(Number); return new Date(y, m - 1, d); };
       const formatWeight = value => Number(value).toLocaleString('ru-RU', { maximumFractionDigits: 1 });
+      const exerciseWord = count => count % 100 >= 11 && count % 100 <= 14 ? 'упражнений' : count % 10 === 1 ? 'упражнение' : count % 10 >= 2 && count % 10 <= 4 ? 'упражнения' : 'упражнений';
       const formatDate = key => new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'long' }).format(parseDate(key));
       const today = dateKey(new Date());
       const previousDay = dateKey(new Date(Date.now() - 4 * DAY));
@@ -535,7 +536,7 @@
         const previousBest = bestSet(previous?.sets || []);
         const currentBest = bestSet(todaySets);
 
-        $('#today-label').textContent = `${new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'long', weekday: 'short' }).format(new Date())} · ${exercises.length} упражнений сегодня`;
+        $('#today-label').textContent = `${new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'long', weekday: 'short' }).format(new Date())} · ${exercises.length} ${exerciseWord(exercises.length)} сегодня`;
         $('#exercise-name').textContent = exercise.name;
         $('#exercise-count').textContent = `Упражнение ${state.currentExercise + 1} из ${exercises.length}`;
         $('#weight-input').value = formatWeight(state.input.weight);
