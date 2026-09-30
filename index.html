@@ -30,6 +30,7 @@
     }
 
     * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
     html { background: var(--bg); }
     body {
       margin: 0;
@@ -98,6 +99,23 @@
 
     .exercise-name { font-size: 1.13rem; font-weight: 650; line-height: 1.25; }
     .exercise-count { margin-top: 4px; color: var(--muted); font-size: .78rem; }
+    .exercise-picker { min-width: 0; width: 100%; padding: 9px 4px; border: 0; border-radius: 14px; background: transparent; color: var(--text); }
+    .exercise-picker:active { background: var(--surface-2); }
+    .exercise-count::after { content: ' ⌄'; color: var(--accent); }
+    .workout-progress { height: 4px; margin-top: 9px; border-radius: 9px; background: var(--surface-2); overflow: hidden; }
+    .workout-progress span { display: block; height: 100%; border-radius: inherit; background: var(--accent); transition: width .2s; }
+    .save-status { display: inline-flex; align-items: center; gap: 5px; margin-top: 7px; padding: 0; border: 0; background: transparent; color: var(--success); font-size: .7rem; text-align: left; }
+    .save-status::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+    .save-status.error { color: var(--danger); }
+    .storage-warning { margin-top: 14px; padding: 12px; border: 1px solid rgba(255, 124, 124, .4); border-radius: 13px; background: rgba(255, 124, 124, .08); color: var(--danger); font-size: .82rem; line-height: 1.5; }
+    .exercise-list { display: grid; gap: 8px; }
+    .exercise-list-item { display: grid; grid-template-columns: 32px minmax(0, 1fr) auto; gap: 10px; align-items: center; width: 100%; min-height: 66px; padding: 11px 12px; border: 1px solid var(--border); border-radius: 15px; background: var(--surface-2); color: var(--text); text-align: left; }
+    .exercise-list-item.current { border-color: var(--accent); background: var(--accent-soft); }
+    .exercise-list-item.completed .exercise-list-index { color: var(--success); }
+    .exercise-list-index { color: var(--muted); text-align: center; font-variant-numeric: tabular-nums; }
+    .exercise-list-title { display: block; font-weight: 600; overflow-wrap: anywhere; }
+    .exercise-list-item small { display: block; margin-top: 4px; color: var(--muted); font-size: .73rem; }
+    .exercise-list-marker { color: var(--accent); font-size: .7rem; }
     .exercise-note {
       display: block;
       max-width: 100%;
@@ -186,7 +204,7 @@
     }
 
     .step-button:active, .icon-button:active, .round-button:active { transform: scale(.97); }
-    .step-value { text-align: center; font-size: 2.15rem; font-weight: 650; font-variant-numeric: tabular-nums; letter-spacing: -.04em; }
+    .step-value { text-align: center; font-size: 2.45rem; font-weight: 650; font-variant-numeric: tabular-nums; letter-spacing: -.04em; }
     .step-value small { margin-left: 3px; color: var(--muted); font-size: .88rem; font-weight: 500; letter-spacing: 0; }
     .weight-entry {
       display: inline-flex;
@@ -237,21 +255,30 @@
     .rest-timer.show { display: flex; }
     .rest-timer strong { margin-left: auto; color: var(--text); font-size: 1.05rem; font-variant-numeric: tabular-nums; }
     .timer-button { min-width: 38px; height: 34px; padding: 0 9px; border: 0; border-radius: 9px; background: rgba(91, 156, 255, .16); color: var(--accent); }
-    .sets { margin-top: 13px; padding: 0 10px; }
+    .sets { margin-top: 13px; }
+    .sets-heading { display: flex; justify-content: space-between; align-items: center; margin: 17px 4px 5px; }
+    .sets-heading h2 { font-size: .88rem; }
+    .sets-heading span { color: var(--muted); font-size: .7rem; }
     .set-row {
       display: grid;
-      grid-template-columns: 30px minmax(0, 1fr) auto 40px;
+      grid-template-columns: 25px minmax(0, 1fr) 40px;
       align-items: center;
       gap: 8px;
       min-height: 54px;
       border-bottom: 1px solid var(--border);
+      padding: 5px 10px;
+      border-radius: 12px;
     }
+    .set-row.latest { background: rgba(97, 214, 155, .07); box-shadow: inset 2px 0 var(--success); }
+    .set-main { display: flex; align-items: center; flex-wrap: wrap; gap: 7px; }
+    .set-comparison { margin-top: 2px; padding-bottom: 4px; color: var(--muted); font-size: .72rem; line-height: 1.45; font-variant-numeric: tabular-nums; }
+    .set-comparison .improved { color: var(--success); }
     .set-row:last-child { border-bottom: 0; }
     .set-index { color: var(--muted); font-variant-numeric: tabular-nums; }
     .set-value { font-weight: 650; font-variant-numeric: tabular-nums; }
     .set-edit { min-width: 0; padding: 8px 0; border: 0; background: transparent; color: var(--text); text-align: left; font: inherit; }
-    .set-edit::after { content: ' · изменить'; color: var(--muted); font-size: .72rem; font-weight: 500; }
-    .set-status { color: var(--success); font-size: .78rem; }
+    .set-edit::after { content: ' ✎'; color: var(--muted); font-size: .78rem; font-weight: 500; }
+    .set-status { color: var(--success); font-size: .66rem; }
     .set-delete { width: 40px; height: 40px; border-radius: 12px; background: transparent; color: var(--muted); }
 
     .empty-state {
@@ -332,9 +359,22 @@
     .calendar-weekdays, .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
     .calendar-weekdays span { padding: 4px 0; color: var(--muted); text-align: center; font-size: .68rem; }
     .calendar-day { position: relative; min-height: 38px; display: grid; place-items: center; border-radius: 10px; color: var(--muted); font-size: .78rem; font-variant-numeric: tabular-nums; }
+    button.calendar-day { width: 100%; padding: 0; border: 0; background: transparent; font: inherit; font-size: .78rem; }
     .calendar-day.trained { background: var(--accent-soft); color: var(--accent); font-weight: 650; }
     .calendar-day.today { box-shadow: inset 0 0 0 1px var(--accent); color: var(--text); }
+    .calendar-day.selected { background: var(--accent-strong); color: white; box-shadow: inset 0 0 0 1px var(--accent); }
     .calendar-day.empty { visibility: hidden; }
+    .history-filter { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin: 0 2px 12px; }
+    .history-filter strong { font-size: .88rem; }
+    .summary-card { margin-top: 15px; padding: 17px; border: 1px solid var(--border); border-radius: 20px; background: var(--surface); }
+    .summary-header { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .summary-header h2 { font-size: 1rem; }
+    .summary-badge { padding: 5px 8px; border-radius: 8px; background: rgba(97, 214, 155, .1); color: var(--success); font-size: .7rem; }
+    .summary-metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 15px; }
+    .summary-metrics strong { display: block; font-size: 1.25rem; font-variant-numeric: tabular-nums; }
+    .summary-metrics span { display: block; margin-top: 4px; color: var(--muted); font-size: .72rem; }
+    .summary-improvements { margin-top: 13px; color: var(--success); font-size: .78rem; line-height: 1.55; }
+    .summary-action { margin-top: 13px; padding: 0; border: 0; background: transparent; color: var(--accent); font-size: .8rem; }
     .history-card {
       padding: 16px;
       background: var(--surface);
@@ -347,6 +387,8 @@
     .history-exercise { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; padding: 9px 0; border-top: 1px solid var(--border); }
     .history-exercise-name { min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
     .history-values { color: var(--muted); text-align: right; font-variant-numeric: tabular-nums; }
+    .history-set-lines { margin-top: 5px; color: var(--muted); font-size: .78rem; line-height: 1.65; font-variant-numeric: tabular-nums; }
+    .data-safety-note { margin-top: 6px; color: var(--muted); font-size: .78rem; line-height: 1.5; }
 
     .progress-picker { width: 100%; min-height: 48px; padding: 0 14px; border: 1px solid var(--border); border-radius: 15px; background: var(--surface); color: var(--text); }
     .progress-card { margin-top: 12px; padding: 18px; background: var(--surface); border: 1px solid var(--border); border-radius: 22px; }
@@ -404,7 +446,10 @@
     @media (max-width: 360px) {
       .app { padding-inline: 12px; }
       .comparison { grid-template-columns: 1fr; }
-      .step-value { font-size: 1.85rem; }
+      .step-value { font-size: 2.1rem; }
+      .weight-entry { min-width: 0; padding-inline: 0; }
+      .stepper { gap: 7px; }
+      .complete-button { min-width: 95px; }
       .bottom-nav { padding-inline: 10px; }
     }
 
@@ -415,11 +460,13 @@
 </head>
 <body>
   <div class="app">
+    <div class="storage-warning" id="storage-warning" role="alert" hidden></div>
     <section class="panel" id="workout-panel" aria-labelledby="workout-tab">
       <header class="topbar">
         <div>
           <h1>Сегодня</h1>
           <p class="meta" id="today-label"></p>
+          <button class="save-status" id="save-status" type="button" aria-label="Сохранение и резервные копии">Сохраняется на устройстве</button>
         </div>
         <button class="icon-button" id="settings-button" type="button" aria-label="Настроить упражнения">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2.83 2.83-.06-.06A1.7 1.7 0 0 0 15 19.37a1.7 1.7 0 0 0-1 .63 1.7 1.7 0 0 0-.4 1.1V21h-4v-.09A1.7 1.7 0 0 0 8.53 19.4a1.7 1.7 0 0 0-1.88.34l-.06.06-2.83-2.83.06-.06A1.7 1.7 0 0 0 4.16 15a1.7 1.7 0 0 0-.63-1 1.7 1.7 0 0 0-1.1-.4H2.3v-4h.09A1.7 1.7 0 0 0 3.9 8.53a1.7 1.7 0 0 0-.34-1.88l-.06-.06 2.83-2.83.06.06A1.7 1.7 0 0 0 8.3 4.16a1.7 1.7 0 0 0 1-.63 1.7 1.7 0 0 0 .4-1.1V2.3h4v.09A1.7 1.7 0 0 0 14.77 3.9a1.7 1.7 0 0 0 1.88-.34l.06-.06 2.83 2.83-.06.06a1.7 1.7 0 0 0-.34 1.91 1.7 1.7 0 0 0 .63 1 1.7 1.7 0 0 0 1.1.4H21v4h-.09A1.7 1.7 0 0 0 19.4 15Z"/></svg>
@@ -430,10 +477,11 @@
         <button class="round-button" id="previous-exercise" type="button" aria-label="Предыдущее упражнение">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
         </button>
-        <div>
+        <button class="exercise-picker" id="open-exercise-list" type="button" aria-label="Открыть список упражнений на сегодня" aria-haspopup="dialog">
           <div class="exercise-name" id="exercise-name"></div>
           <div class="exercise-count" id="exercise-count"></div>
-        </div>
+          <div class="workout-progress" aria-hidden="true"><span id="workout-progress-fill"></span></div>
+        </button>
         <button class="round-button" id="next-exercise" type="button" aria-label="Следующее упражнение">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
         </button>
@@ -475,6 +523,7 @@
       </section>
 
       <div class="sets" id="sets-list" aria-live="polite"></div>
+      <section class="summary-card" id="workout-summary" aria-label="Итог тренировки" hidden></section>
     </section>
 
     <section class="panel" id="history-panel" aria-labelledby="history-tab" hidden>
@@ -484,6 +533,7 @@
         <div class="calendar-weekdays" aria-hidden="true"><span>пн</span><span>вт</span><span>ср</span><span>чт</span><span>пт</span><span>сб</span><span>вс</span></div>
         <div class="calendar-grid" id="calendar-grid"></div>
       </div>
+      <div class="history-filter"><strong id="history-filter-label">Все тренировки</strong><button class="compact-button" id="clear-history-filter" type="button" hidden>Все дни</button></div>
       <div class="history-list" id="history-list"></div>
     </section>
 
@@ -536,7 +586,11 @@
         <label class="setting-row"><span>Таймер после подхода</span><select class="select-input" id="rest-duration"><option value="60">1 минута</option><option value="90">1:30</option><option value="120">2 минуты</option><option value="180">3 минуты</option></select></label>
       </section>
       <section class="settings-section">
+        <h3>Сохранение данных</h3>
+        <p class="data-safety-note" id="data-safety-note">Записи хранятся на этом устройстве. Для переноса или восстановления сохрани копию в «Файлы» или iCloud Drive. Облачная синхронизация пока не подключена.</p>
         <button class="secondary-button" id="export-data" type="button">Скачать резервную копию</button>
+        <button class="secondary-button" id="import-data" type="button">Восстановить из файла</button>
+        <input id="import-file" type="file" accept=".json,application/json" hidden>
         <button class="danger-button" id="reset-data" type="button">Очистить все данные</button>
       </section>
     </div>
@@ -579,8 +633,24 @@
     </form>
   </dialog>
 
+  <dialog id="exercise-list-dialog">
+    <div class="dialog-head"><div><h2>Сегодняшние упражнения</h2><p class="meta" id="exercise-list-meta"></p></div><button class="icon-button" id="close-exercise-list" type="button" aria-label="Закрыть список упражнений">×</button></div>
+    <div class="dialog-body exercise-list" id="exercise-list"></div>
+  </dialog>
+
+  <dialog id="restore-dialog">
+    <div class="dialog-head"><h2>Восстановить дневник?</h2><button class="icon-button" id="close-restore" type="button" aria-label="Отменить восстановление">×</button></div>
+    <div class="dialog-body">
+      <p class="meta" id="restore-preview"></p>
+      <p class="data-safety-note">Данные из файла заменят текущий дневник. Сначала сохрани текущие записи отдельным файлом. Предыдущая версия также останется на этом устройстве до следующего изменения.</p>
+      <button class="secondary-button" id="export-before-restore" type="button">Скачать текущие записи</button>
+      <button class="primary-button membership-edit" id="confirm-restore" type="button">Восстановить из копии</button>
+    </div>
+  </dialog>
+
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
+  <script src="./data-store.js"></script>
   <script>
     (() => {
       const STORAGE_KEY = 'podhod-gym-log-v1';
@@ -591,7 +661,7 @@
       const exerciseWord = count => count % 100 >= 11 && count % 100 <= 14 ? 'упражнений' : count % 10 === 1 ? 'упражнение' : count % 10 >= 2 && count % 10 <= 4 ? 'упражнения' : 'упражнений';
       const formatDate = key => new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'long' }).format(parseDate(key));
       const formatFullDate = key => new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' }).format(parseDate(key));
-      const today = dateKey(new Date());
+      let today = dateKey(new Date());
       const previousDay = dateKey(new Date(Date.now() - 4 * DAY));
 
       const createInitialState = () => ({
@@ -611,6 +681,7 @@
           { id: 'template-main', name: 'Основная', exerciseIds: ['leg-press', 'chest-press', 'lat-pulldown', 'leg-curl', 'pec-deck'] }
         ],
         completedExercises: { [today]: [] },
+        finishedWorkouts: {},
         exerciseNotes: {},
         membership: { name: '', purchasedAt: '', validUntil: '', gyms: [], note: '' },
         settings: { restSeconds: 90 },
@@ -630,53 +701,77 @@
         }
       });
 
-      function loadState() {
-        try {
-          const stored = JSON.parse(localStorage.getItem(STORAGE_KEY));
-          if (stored?.exercises?.length && stored.sessions) {
-            const validIds = new Set(stored.exercises.map(exercise => exercise.id));
-            stored.workoutPlans ||= {};
-            const previousPlan = Object.keys(stored.workoutPlans)
-              .filter(day => day < today && Array.isArray(stored.workoutPlans[day]))
-              .sort().reverse()
-              .map(day => stored.workoutPlans[day].filter(id => validIds.has(id)))
-              .find(plan => plan.length);
-            const selected = Array.isArray(stored.workoutPlans[today])
-              ? stored.workoutPlans[today].filter(id => validIds.has(id))
-              : previousPlan || stored.exercises.slice(0, 5).map(exercise => exercise.id);
-            stored.workoutPlans[today] = selected.length ? selected : [stored.exercises[0].id];
-            stored.currentExercise = Math.min(Math.max(Number(stored.currentExercise) || 0, 0), stored.workoutPlans[today].length - 1);
-            stored.templates = Array.isArray(stored.templates) ? stored.templates : [];
-            if (!stored.templates.length) stored.templates.push({ id: `template-${Date.now()}`, name: 'Основная', exerciseIds: [...stored.workoutPlans[today]] });
-            stored.completedExercises ||= {};
-            stored.completedExercises[today] = (stored.completedExercises[today] || []).filter(id => validIds.has(id));
-            stored.exerciseNotes ||= {};
-            stored.membership = { name: '', purchasedAt: '', validUntil: '', gyms: [], note: '', ...(stored.membership || {}) };
-            stored.membership.gyms = Array.isArray(stored.membership.gyms) ? stored.membership.gyms : [];
-            stored.settings = { restSeconds: 90, ...(stored.settings || {}) };
-            stored.restTimer ||= null;
-            return stored;
-          }
-        } catch (_) {}
-        return createInitialState();
+      const storage = (() => { try { return window.localStorage; } catch (_) { return null; } })();
+      const loadedData = PodhodData.read(storage, STORAGE_KEY);
+      let storageReadBlocked = loadedData.status === 'error' && !loadedData.state;
+      let saveFailed = loadedData.status === 'error';
+      let saveLabel = loadedData.status === 'saved' ? 'Сохранено на устройстве' : loadedData.status === 'recovered' ? 'Восстановлена локальная копия' : loadedData.status === 'error' ? 'Не удалось прочитать записи' : 'Сохраняется на устройстве';
+
+      function normalizeState(stored) {
+        const validIds = new Set(stored.exercises.map(exercise => exercise.id));
+        stored.workoutPlans ||= {};
+        const previousPlan = Object.keys(stored.workoutPlans)
+          .filter(day => day < today && Array.isArray(stored.workoutPlans[day]))
+          .sort().reverse()
+          .map(day => [...new Set(stored.workoutPlans[day].filter(id => validIds.has(id)))])
+          .find(plan => plan.length);
+        const selected = Array.isArray(stored.workoutPlans[today])
+          ? [...new Set(stored.workoutPlans[today].filter(id => validIds.has(id)))]
+          : previousPlan || stored.exercises.slice(0, 5).map(exercise => exercise.id);
+        stored.workoutPlans[today] = selected.length ? selected : [stored.exercises[0].id];
+        stored.currentExercise = Math.min(Math.max(Number(stored.currentExercise) || 0, 0), stored.workoutPlans[today].length - 1);
+        stored.templates = Array.isArray(stored.templates) ? stored.templates : [];
+        if (!stored.templates.length) stored.templates.push({ id: `template-${Date.now()}`, name: 'Основная', exerciseIds: [...stored.workoutPlans[today]] });
+        stored.completedExercises ||= {};
+        stored.completedExercises[today] = [...new Set((stored.completedExercises[today] || []).filter(id => stored.workoutPlans[today].includes(id)))];
+        stored.finishedWorkouts ||= {};
+        stored.exerciseNotes ||= {};
+        stored.membership = { name: '', purchasedAt: '', validUntil: '', gyms: [], note: '', ...(stored.membership || {}) };
+        stored.settings = { restSeconds: 90, ...(stored.settings || {}) };
+        stored.restTimer ||= null;
+        return stored;
       }
 
-      let state = loadState();
+      let state = loadedData.state ? normalizeState(loadedData.state) : createInitialState();
       let toastTimer;
       let restTimerInterval;
-      let editingSetIndex = null;
+      let editingSet = null;
+      let dayRolloverTimer;
       let noteExerciseId = null;
+      let pendingBackup = null;
+      let selectedHistoryDay = null;
       let calendarCursor = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
       const $ = selector => document.querySelector(selector);
       const $$ = selector => [...document.querySelectorAll(selector)];
 
       function save() {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        if (storageReadBlocked) {
+          saveFailed = true;
+          saveLabel = 'Сохранение остановлено';
+          renderSaveStatus();
+          return false;
+        }
+        const result = PodhodData.write(storage, STORAGE_KEY, state);
+        saveFailed = !result.ok;
+        saveLabel = result.ok ? 'Сохранено на устройстве' : 'Не сохранено — скачай копию';
+        renderSaveStatus();
+        return result.ok;
       }
 
-      function showToast(message) {
+      function renderSaveStatus() {
+        const status = $('#save-status');
+        status.textContent = saveLabel;
+        status.classList.toggle('error', saveFailed);
+        const warning = $('#storage-warning');
+        warning.hidden = !saveFailed;
+        warning.textContent = storageReadBlocked
+          ? 'Не удалось прочитать сохранённый дневник. Запись остановлена, чтобы сохранить прежние данные. Открой настройки и восстанови дневник из файла.'
+          : 'Последние изменения не удалось сохранить. Не закрывай приложение: открой настройки и скачай резервную копию.';
+      }
+
+      function showToast(message, allowDuringSaveError = false) {
         const toast = $('#toast');
-        toast.textContent = message;
+        toast.textContent = saveFailed && !allowDuringSaveError ? 'Не сохранено. Скачай резервную копию в настройках' : message;
         toast.classList.add('show');
         clearTimeout(toastTimer);
         toastTimer = setTimeout(() => toast.classList.remove('show'), 1800);
@@ -684,7 +779,7 @@
 
       function completedToday() {
         state.completedExercises ||= {};
-        state.completedExercises[today] ||= [];
+        state.completedExercises[today] = [...new Set(state.completedExercises[today] || [])];
         return state.completedExercises[today];
       }
 
@@ -731,7 +826,7 @@
       function todayExerciseIds() {
         state.workoutPlans ||= {};
         const validIds = new Set(state.exercises.map(exercise => exercise.id));
-        const selected = (state.workoutPlans[today] || []).filter(id => validIds.has(id));
+        const selected = [...new Set((state.workoutPlans[today] || []).filter(id => validIds.has(id)))];
         state.workoutPlans[today] = selected.length ? selected : [state.exercises[0].id];
         return state.workoutPlans[today];
       }
@@ -782,6 +877,7 @@
         $('#today-label').textContent = `${new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'long', weekday: 'short' }).format(new Date())} · ${exercises.length} ${exerciseWord(exercises.length)} сегодня`;
         $('#exercise-name').textContent = exercise.name;
         $('#exercise-count').textContent = `Упражнение ${state.currentExercise + 1} из ${exercises.length} · ${completed.size} готово`;
+        $('#workout-progress-fill').style.width = `${completed.size / exercises.length * 100}%`;
         const note = state.exerciseNotes[exercise.id]?.trim() || '';
         $('#exercise-note').textContent = note || 'Добавить настройку тренажёра';
         $('#exercise-note').classList.toggle('has-note', Boolean(note));
@@ -800,14 +896,59 @@
         $('#weight-delta').textContent = previousBest ? (delta === 0 ? 'как в прошлый раз' : `${delta > 0 ? '+' : ''}${formatWeight(delta)} кг к прошлому разу`) : '';
         $('#reps-target').textContent = previousBest ? `прошлый результат: ${previousBest.reps}` : '';
 
-        $('#sets-list').innerHTML = todaySets.length ? todaySets.map((set, index) => `
-          <div class="set-row">
+        $('#sets-list').innerHTML = todaySets.length ? '<div class="sets-heading"><h2>Сегодняшние подходы</h2><span>Нажми, чтобы изменить</span></div>' + todaySets.map((set, index) => {
+          const lastSet = previous?.sets[index];
+          let comparison = 'Прошлый раз: нет такого подхода';
+          if (lastSet) {
+            const weightDelta = set.weight - lastSet.weight;
+            const repsDelta = set.reps - lastSet.reps;
+            const difference = weightDelta !== 0 ? `${weightDelta > 0 ? '+' : ''}${formatWeight(weightDelta)} кг` : repsDelta !== 0 ? `${repsDelta > 0 ? '+' : ''}${repsDelta} повт.` : 'без изменений';
+            const improved = weightDelta > 0 || (weightDelta === 0 && repsDelta > 0);
+            comparison = `Прошлый раз: ${formatWeight(lastSet.weight)} кг × ${lastSet.reps} · <span class="${improved ? 'improved' : ''}">${difference}</span>`;
+          }
+          return `<div class="set-row ${index === todaySets.length - 1 ? 'latest' : ''}">
             <span class="set-index">${index + 1}</span>
-            <button class="set-value set-edit" type="button" data-edit-set="${index}" aria-label="Изменить подход ${index + 1}">${formatWeight(set.weight)} кг × ${set.reps}</button>
-            <span class="set-status">готово</span>
+            <div><div class="set-main"><button class="set-value set-edit" type="button" data-edit-set="${index}" aria-label="Изменить подход ${index + 1}">${formatWeight(set.weight)} кг × ${set.reps}</button>${index === todaySets.length - 1 ? '<span class="set-status">последний</span>' : ''}</div><div class="set-comparison">${comparison}</div></div>
             <button class="set-delete" type="button" data-delete-set="${index}" aria-label="Удалить подход ${index + 1}">×</button>
-          </div>`).join('') : '<div class="empty-state">Подходов пока нет. Вес подставлен из прошлой тренировки.</div>';
+          </div>`;
+        }).join('') : '<div class="empty-state">Подходов пока нет. Вес подставлен из прошлой тренировки.</div>';
         renderRestTimer();
+        renderSummary();
+        renderSaveStatus();
+      }
+
+      function renderExerciseList() {
+        const exercises = workoutExercises();
+        const completed = new Set(completedToday());
+        $('#exercise-list-meta').textContent = `${completed.size} из ${exercises.length} завершено · выбери упражнение`;
+        $('#exercise-list').innerHTML = exercises.map((exercise, index) => {
+          const sets = setsFor(today, exercise.id);
+          const isCompleted = completed.has(exercise.id);
+          return `<button class="exercise-list-item ${index === state.currentExercise ? 'current' : ''} ${isCompleted ? 'completed' : ''}" type="button" data-select-exercise="${index}" ${index === state.currentExercise ? 'aria-current="true"' : ''}><span class="exercise-list-index">${isCompleted ? '✓' : index + 1}</span><span><span class="exercise-list-title">${escapeHtml(exercise.name)}</span><small>${isCompleted ? 'Завершено' : sets.length ? `${sets.length} ${countWord(sets.length, ['подход', 'подхода', 'подходов'])}` : 'Ещё не начато'}</small></span><span class="exercise-list-marker">${index === state.currentExercise ? 'Сейчас' : '›'}</span></button>`;
+        }).join('');
+      }
+
+      function countWord(count, forms) {
+        return count % 100 >= 11 && count % 100 <= 14 ? forms[2] : count % 10 === 1 ? forms[0] : count % 10 >= 2 && count % 10 <= 4 ? forms[1] : forms[2];
+      }
+
+      function renderSummary() {
+        const entries = Object.entries(state.sessions[today] || {}).filter(([, sets]) => sets.length);
+        const card = $('#workout-summary');
+        card.hidden = !entries.length;
+        if (!entries.length) return;
+        const totalSets = entries.reduce((total, [, sets]) => total + sets.length, 0);
+        const totalReps = entries.reduce((total, [, sets]) => total + sets.reduce((sum, set) => sum + set.reps, 0), 0);
+        const improvements = entries.map(([id, sets]) => {
+          const previous = bestSet(previousSession(id)?.sets || []);
+          const current = bestSet(sets);
+          if (!previous || current.weight < previous.weight || (current.weight === previous.weight && current.reps <= previous.reps)) return '';
+          const exercise = state.exercises.find(item => item.id === id);
+          const delta = current.weight > previous.weight ? `+${formatWeight(current.weight - previous.weight)} кг` : `+${current.reps - previous.reps} повт.`;
+          return `<div>${escapeHtml(exercise?.name || 'Удалённое упражнение')}: ${delta} к прошлой тренировке</div>`;
+        }).filter(Boolean);
+        const finished = Boolean(state.finishedWorkouts[today]);
+        card.innerHTML = `<div class="summary-header"><h2>${finished ? 'Тренировка завершена' : 'Сегодня в цифрах'}</h2><span class="summary-badge">${finished ? '✓ Готово' : 'В процессе'}</span></div><div class="summary-metrics"><div><strong>${entries.length}</strong><span>${exerciseWord(entries.length)}</span></div><div><strong>${totalSets}</strong><span>${countWord(totalSets, ['подход', 'подхода', 'подходов'])}</span></div><div><strong>${totalReps}</strong><span>${countWord(totalReps, ['повторение', 'повторения', 'повторений'])}</span></div></div>${improvements.length ? `<div class="summary-improvements">${improvements.join('')}</div>` : '<p class="meta">Каждый записанный подход — вклад в следующую тренировку.</p>'}<button class="summary-action" type="button" id="finish-workout">${finished ? 'Продолжить тренировку' : 'Завершить тренировку'}</button>`;
       }
 
       function renderCalendar() {
@@ -823,29 +964,32 @@
           const classes = ['calendar-day'];
           if (trainedDays.has(key)) classes.push('trained');
           if (key === today) classes.push('today');
-          cells.push(`<span class="${classes.join(' ')}" aria-label="${formatDate(key)}${trainedDays.has(key) ? ', была тренировка' : ''}">${day}</span>`);
+          if (key === selectedHistoryDay) classes.push('selected');
+          cells.push(`<button class="${classes.join(' ')}" type="button" data-history-day="${key}" aria-pressed="${key === selectedHistoryDay}" aria-label="${formatFullDate(key)}${trainedDays.has(key) ? ', была тренировка' : ', нет тренировок'}">${day}</button>`);
         }
         $('#calendar-grid').innerHTML = cells.join('');
       }
 
       function renderHistory() {
         renderCalendar();
-        const days = Object.keys(state.sessions).filter(day => Object.values(state.sessions[day]).some(sets => sets.length)).sort().reverse();
+        $('#history-filter-label').textContent = selectedHistoryDay ? formatFullDate(selectedHistoryDay) : 'Все тренировки';
+        $('#clear-history-filter').hidden = !selectedHistoryDay;
+        const days = Object.keys(state.sessions).filter(day => (!selectedHistoryDay || day === selectedHistoryDay) && Object.values(state.sessions[day]).some(sets => sets.length)).sort().reverse();
         $('#history-list').innerHTML = days.length ? days.map(day => {
-          const rows = state.exercises.map(exercise => {
-            const sets = setsFor(day, exercise.id);
+          const rows = Object.entries(state.sessions[day]).map(([id, sets]) => {
             if (!sets.length) return '';
-            return `<div class="history-exercise"><span class="history-exercise-name">${escapeHtml(exercise.name)}</span><span class="history-values">${sets.map(set => `${formatWeight(set.weight)}×${set.reps}`).join(' · ')}</span></div>`;
+            const name = state.exercises.find(exercise => exercise.id === id)?.name || 'Удалённое упражнение';
+            return `<div class="history-exercise"><div><span class="history-exercise-name">${escapeHtml(name)}</span><div class="history-set-lines">${sets.map((set, index) => `${index + 1}. ${formatWeight(set.weight)} кг × ${set.reps}`).join('<br>')}</div></div><span class="history-values">${sets.length} ${countWord(sets.length, ['подход', 'подхода', 'подходов'])}</span></div>`;
           }).join('');
           const total = Object.values(state.sessions[day]).reduce((sum, sets) => sum + sets.length, 0);
-          return `<article class="history-card"><div class="history-date"><strong>${day === today ? 'Сегодня' : formatDate(day)}</strong><span>${total} подходов</span></div>${rows}</article>`;
-        }).join('') : '<div class="empty-state">История появится после первой тренировки.</div>';
+          return `<article class="history-card"><div class="history-date"><strong>${day === today ? 'Сегодня' : formatFullDate(day)}</strong><span>${total} ${countWord(total, ['подход', 'подхода', 'подходов'])}</span></div>${rows}</article>`;
+        }).join('') : `<div class="empty-state">${selectedHistoryDay ? 'В этот день тренировок не было. Выбери другую дату или нажми «Все дни».' : 'История появится после первой тренировки.'}</div>`;
       }
 
       function renderProgressPicker() {
         const select = $('#progress-exercise');
         const selected = select.value || currentExercise().id;
-        select.innerHTML = state.exercises.map(exercise => `<option value="${exercise.id}">${escapeHtml(exercise.name)}</option>`).join('');
+        select.innerHTML = state.exercises.map(exercise => `<option value="${escapeHtml(exercise.id)}">${escapeHtml(exercise.name)}</option>`).join('');
         select.value = state.exercises.some(exercise => exercise.id === selected) ? selected : state.exercises[0].id;
         renderProgress();
       }
@@ -928,7 +1072,7 @@
         const templateSelect = $('#template-select');
         const previousTemplate = templateSelect.value;
         templateSelect.innerHTML = state.templates.length
-          ? state.templates.map(template => `<option value="${template.id}">${escapeHtml(template.name)}</option>`).join('')
+          ? state.templates.map(template => `<option value="${escapeHtml(template.id)}">${escapeHtml(template.name)}</option>`).join('')
           : '<option value="">Нет шаблонов</option>';
         templateSelect.value = state.templates.some(template => template.id === previousTemplate) ? previousTemplate : state.templates[0]?.id || '';
         $('#apply-template').disabled = !state.templates.length;
@@ -936,9 +1080,9 @@
         $('#rest-duration').value = String(state.settings.restSeconds);
         $('#exercise-editors').innerHTML = state.exercises.map((exercise, index) => `
           <div class="exercise-editor">
-            <input class="today-checkbox" type="checkbox" data-today-exercise="${exercise.id}" ${selectedIds.has(exercise.id) ? 'checked' : ''} aria-label="Добавить ${escapeHtml(exercise.name)} в тренировку сегодня">
-            <input class="text-input" value="${escapeHtml(exercise.name)}" data-exercise-name="${exercise.id}" aria-label="Название упражнения ${index + 1}">
-            <button class="set-delete" type="button" data-delete-exercise="${exercise.id}" aria-label="Удалить ${escapeHtml(exercise.name)}">×</button>
+            <input class="today-checkbox" type="checkbox" data-today-exercise="${escapeHtml(exercise.id)}" ${selectedIds.has(exercise.id) ? 'checked' : ''} aria-label="Добавить ${escapeHtml(exercise.name)} в тренировку сегодня">
+            <input class="text-input" value="${escapeHtml(exercise.name)}" data-exercise-name="${escapeHtml(exercise.id)}" aria-label="Название упражнения ${index + 1}">
+            <button class="set-delete" type="button" data-delete-exercise="${escapeHtml(exercise.id)}" aria-label="Удалить ${escapeHtml(exercise.name)}">×</button>
           </div>`).join('');
       }
 
@@ -951,10 +1095,11 @@
       }
 
       $$('[data-change]').forEach(button => button.addEventListener('click', () => {
+        syncCurrentDay();
         const field = button.dataset.change;
         const delta = Number(button.dataset.delta);
         const minimum = field === 'weight' ? 0 : 1;
-        state.input[field] = Math.max(minimum, Number((state.input[field] + delta).toFixed(1)));
+        state.input[field] = Math.min(1000, Math.max(minimum, Number((state.input[field] + delta).toFixed(1))));
         save();
         renderWorkout();
       }));
@@ -967,6 +1112,7 @@
           showToast('Введите вес от 0 до 1000 кг');
           return;
         }
+        syncCurrentDay();
         state.input.weight = Math.round(weight * 100) / 100;
         save();
         renderWorkout();
@@ -994,6 +1140,7 @@
       }
 
       function addSetToExercise(exerciseId, weight, reps) {
+        syncCurrentDay();
         const exercise = state.exercises.find(item => item.id === exerciseId);
         if (!exercise) throw new Error('Упражнение не найдено');
         if (!Number.isFinite(weight) || weight < 0 || weight > 1000) throw new Error('Вес должен быть числом от 0 до 1000');
@@ -1002,12 +1149,14 @@
         state.sessions[today] ||= {};
         state.sessions[today][exercise.id] ||= [];
         state.sessions[today][exercise.id].push({ weight, reps });
+        state.finishedWorkouts[today] = false;
         startRestTimer();
         renderAll();
         return { date: today, exercise: exercise.name, weight, reps, setNumber: state.sessions[today][exercise.id].length, record };
       }
 
       $('#add-set').addEventListener('click', () => {
+        syncCurrentDay();
         const exercise = currentExercise();
         const result = addSetToExercise(exercise.id, state.input.weight, state.input.reps);
         showToast(result.record || 'Подход сохранён');
@@ -1015,6 +1164,7 @@
       });
 
       $('#repeat-last-set').addEventListener('click', () => {
+        syncCurrentDay();
         const previous = previousSession(currentExercise().id);
         const set = previous?.sets.at(-1);
         if (!set) return;
@@ -1025,11 +1175,13 @@
       });
 
       $('#complete-exercise').addEventListener('click', () => {
+        syncCurrentDay();
         const exercises = workoutExercises();
         const exercise = currentExercise();
         const completed = completedToday();
         const wasCompleted = completed.includes(exercise.id);
         state.completedExercises[today] = wasCompleted ? completed.filter(id => id !== exercise.id) : [...completed, exercise.id];
+        if (wasCompleted) state.finishedWorkouts[today] = false;
         if (!wasCompleted) {
           for (let step = 1; step <= exercises.length; step += 1) {
             const candidateIndex = (state.currentExercise + step) % exercises.length;
@@ -1042,6 +1194,11 @@
         }
         save();
         renderWorkout();
+        if (!wasCompleted && state.completedExercises[today].length === exercises.length) {
+          state.finishedWorkouts[today] = true;
+          stopRestTimer();
+          renderSummary();
+        }
         showToast(wasCompleted ? 'Упражнение возвращено' : state.completedExercises[today].length === exercises.length ? 'Тренировка завершена' : 'Упражнение завершено');
       });
 
@@ -1049,17 +1206,21 @@
         const currentEnd = state.restTimer?.endAt || Date.now();
         state.restTimer = { endAt: Math.max(currentEnd, Date.now()) + 30000 };
         save();
+        clearInterval(restTimerInterval);
+        restTimerInterval = setInterval(renderRestTimer, 1000);
         renderRestTimer();
       });
       $('#stop-rest-timer').addEventListener('click', stopRestTimer);
 
       $('#sets-list').addEventListener('click', event => {
+        const setDay = today;
+        const exercise = currentExercise();
         const editButton = event.target.closest('[data-edit-set]');
         if (editButton) {
-          editingSetIndex = Number(editButton.dataset.editSet);
-          const set = setsFor(today, currentExercise().id)[editingSetIndex];
+          editingSet = { day: setDay, exerciseId: exercise.id, index: Number(editButton.dataset.editSet) };
+          const set = setsFor(editingSet.day, editingSet.exerciseId)[editingSet.index];
           if (!set) return;
-          $('#edit-set-exercise').textContent = currentExercise().name;
+          $('#edit-set-exercise').textContent = `${exercise.name} · ${formatDate(setDay)}`;
           $('#edit-set-weight').value = formatWeight(set.weight);
           $('#edit-set-reps').value = set.reps;
           editSetDialog.showModal();
@@ -1068,13 +1229,15 @@
         }
         const button = event.target.closest('[data-delete-set]');
         if (!button) return;
-        setsFor(today, currentExercise().id).splice(Number(button.dataset.deleteSet), 1);
+        setsFor(setDay, exercise.id).splice(Number(button.dataset.deleteSet), 1);
         save();
+        syncCurrentDay();
         renderAll();
         showToast('Подход удалён');
       });
 
       function changeExercise(delta) {
+        syncCurrentDay();
         const count = workoutExercises().length;
         state.currentExercise = (state.currentExercise + delta + count) % count;
         setInputFromHistory();
@@ -1096,11 +1259,12 @@
           showToast('Проверь вес и повторения');
           return;
         }
-        const set = setsFor(today, currentExercise().id)[editingSetIndex];
+        const set = editingSet && setsFor(editingSet.day, editingSet.exerciseId)[editingSet.index];
         if (!set) return;
         set.weight = Math.round(weight * 100) / 100;
         set.reps = reps;
         save();
+        syncCurrentDay();
         renderAll();
         editSetDialog.close();
         showToast('Подход изменён');
@@ -1108,6 +1272,7 @@
 
       const noteDialog = $('#note-dialog');
       $('#exercise-note').addEventListener('click', () => {
+        syncCurrentDay();
         const exercise = currentExercise();
         noteExerciseId = exercise.id;
         $('#note-exercise-name').textContent = exercise.name;
@@ -1135,6 +1300,39 @@
         calendarCursor = new Date(calendarCursor.getFullYear(), calendarCursor.getMonth() + 1, 1);
         renderCalendar();
       });
+      $('#calendar-grid').addEventListener('click', event => {
+        const button = event.target.closest('[data-history-day]');
+        if (!button) return;
+        selectedHistoryDay = button.dataset.historyDay;
+        renderHistory();
+      });
+      $('#clear-history-filter').addEventListener('click', () => {
+        selectedHistoryDay = null;
+        renderHistory();
+      });
+
+      const exerciseListDialog = $('#exercise-list-dialog');
+      $('#open-exercise-list').addEventListener('click', () => { syncCurrentDay(); renderExerciseList(); exerciseListDialog.showModal(); });
+      $('#close-exercise-list').addEventListener('click', () => exerciseListDialog.close());
+      exerciseListDialog.addEventListener('click', event => { if (event.target === exerciseListDialog) exerciseListDialog.close(); });
+      $('#exercise-list').addEventListener('click', event => {
+        const button = event.target.closest('[data-select-exercise]');
+        if (!button) return;
+        state.currentExercise = Number(button.dataset.selectExercise);
+        setInputFromHistory();
+        save();
+        renderWorkout();
+        exerciseListDialog.close();
+      });
+      $('#workout-summary').addEventListener('click', event => {
+        if (!event.target.closest('#finish-workout')) return;
+        syncCurrentDay();
+        state.finishedWorkouts[today] = !state.finishedWorkouts[today];
+        if (state.finishedWorkouts[today]) stopRestTimer();
+        else save();
+        renderSummary();
+        showToast(state.finishedWorkouts[today] ? 'Тренировка завершена' : 'Можно продолжать тренировку');
+      });
 
       $$('.nav-button').forEach(button => button.addEventListener('click', () => {
         const panel = button.dataset.panel;
@@ -1149,6 +1347,7 @@
 
       const dialog = $('#settings-dialog');
       $('#settings-button').addEventListener('click', () => { renderSettings(); dialog.showModal(); });
+      $('#save-status').addEventListener('click', () => { renderSettings(); dialog.showModal(); });
       $('#close-settings').addEventListener('click', () => dialog.close());
       dialog.addEventListener('click', event => { if (event.target === dialog) dialog.close(); });
 
@@ -1163,6 +1362,7 @@
 
       const membershipDialog = $('#membership-dialog');
       $('#edit-membership').addEventListener('click', () => {
+        syncCurrentDay();
         const membership = state.membership || {};
         $('#membership-name-input').value = membership.name || '';
         $('#membership-purchased-input').value = membership.purchasedAt || today;
@@ -1197,6 +1397,7 @@
       });
       $('#template-form').addEventListener('submit', event => {
         event.preventDefault();
+        syncCurrentDay();
         const name = $('#template-name').value.trim();
         if (!name) return;
         state.templates.push({ id: `template-${Date.now()}`, name, exerciseIds: [...todayExerciseIds()] });
@@ -1206,16 +1407,19 @@
         showToast('Шаблон сохранён');
       });
       $('#apply-template').addEventListener('click', () => {
+        syncCurrentDay();
         const template = state.templates.find(item => item.id === $('#template-select').value);
         if (!template) return;
         const validIds = new Set(state.exercises.map(exercise => exercise.id));
-        const selected = template.exerciseIds.filter(id => validIds.has(id));
+        const selected = [...new Set(template.exerciseIds.filter(id => validIds.has(id)))];
         if (!selected.length) {
           showToast('В шаблоне нет доступных упражнений');
           return;
         }
+        const previousIds = new Set(todayExerciseIds());
         state.workoutPlans[today] = selected;
         state.completedExercises[today] = completedToday().filter(id => selected.includes(id));
+        if (selected.some(id => !previousIds.has(id) && !completedToday().includes(id))) state.finishedWorkouts[today] = false;
         state.currentExercise = 0;
         setInputFromHistory();
         save();
@@ -1237,12 +1441,16 @@
       });
 
       $('#exercise-editors').addEventListener('change', event => {
+        syncCurrentDay();
         const todayExerciseId = event.target.dataset.todayExercise;
         if (todayExerciseId) {
           const currentId = currentExercise().id;
           const selected = todayExerciseIds();
           if (event.target.checked) {
-            if (!selected.includes(todayExerciseId)) selected.push(todayExerciseId);
+            if (!selected.includes(todayExerciseId)) {
+              selected.push(todayExerciseId);
+              if (!completedToday().includes(todayExerciseId)) state.finishedWorkouts[today] = false;
+            }
           } else if (selected.length === 1) {
             event.target.checked = true;
             showToast('Оставь хотя бы одно упражнение');
@@ -1267,6 +1475,7 @@
       });
 
       $('#exercise-editors').addEventListener('click', event => {
+        syncCurrentDay();
         const button = event.target.closest('[data-delete-exercise]');
         if (!button || state.exercises.length === 1) return;
         const currentId = currentExercise().id;
@@ -1282,9 +1491,11 @@
       });
 
       $('#add-exercise').addEventListener('click', () => {
+        syncCurrentDay();
         const id = `exercise-${Date.now()}`;
         state.exercises.push({ id, name: 'Новое упражнение' });
         todayExerciseIds().push(id);
+        state.finishedWorkouts[today] = false;
         state.currentExercise = workoutExercises().length - 1;
         save();
         renderAll();
@@ -1293,14 +1504,61 @@
 
       $('#progress-exercise').addEventListener('change', renderProgress);
 
-      $('#export-data').addEventListener('click', () => {
-        const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = `podhod-backup-${today}.json`;
-        link.click();
-        URL.revokeObjectURL(link.href);
-        showToast('Резервная копия скачана');
+      function exportBackup() {
+        try {
+          const blob = new Blob([JSON.stringify(PodhodData.createBackup(state))], { type: 'application/json' });
+          const link = document.createElement('a');
+          link.href = URL.createObjectURL(blob);
+          link.download = `podhod-backup-${today}.json`;
+          document.body.append(link);
+          link.click();
+          setTimeout(() => { URL.revokeObjectURL(link.href); link.remove(); }, 30000);
+          showToast('Файл копии подготовлен. Сохрани его в «Файлы»', true);
+        } catch (error) {
+          showToast(error.message || 'Не удалось подготовить резервную копию', true);
+        }
+      }
+      $('#export-data').addEventListener('click', exportBackup);
+      $('#export-before-restore').addEventListener('click', exportBackup);
+
+      const restoreDialog = $('#restore-dialog');
+      restoreDialog.addEventListener('cancel', () => { pendingBackup = null; });
+      $('#import-data').addEventListener('click', () => $('#import-file').click());
+      $('#import-file').addEventListener('change', async event => {
+        const file = event.target.files[0];
+        event.target.value = '';
+        if (!file) return;
+        try {
+          if (file.size > PodhodData.MAX_BACKUP_BYTES) throw new Error('Файл слишком большой. Выбери копию до 5 МБ');
+          pendingBackup = PodhodData.parseBackup(await file.text());
+          const days = Object.values(pendingBackup.sessions).filter(session => Object.values(session).some(sets => sets.length)).length;
+          const sets = Object.values(pendingBackup.sessions).reduce((sum, session) => sum + Object.values(session).reduce((total, rows) => total + rows.length, 0), 0);
+          $('#restore-preview').textContent = `В копии: ${days} ${countWord(days, ['день', 'дня', 'дней'])} тренировок, ${sets} ${countWord(sets, ['подход', 'подхода', 'подходов'])} и ${pendingBackup.exercises.length} ${exerciseWord(pendingBackup.exercises.length)}. Абонемент и настройки тоже будут восстановлены.`;
+          restoreDialog.showModal();
+        } catch (error) {
+          pendingBackup = null;
+          showToast(error.message || 'Не удалось прочитать резервную копию', true);
+        }
+      });
+      $('#close-restore').addEventListener('click', () => { pendingBackup = null; restoreDialog.close(); });
+      restoreDialog.addEventListener('click', event => { if (event.target === restoreDialog) { pendingBackup = null; restoreDialog.close(); } });
+      $('#confirm-restore').addEventListener('click', () => {
+        if (!pendingBackup) return;
+        const candidate = normalizeState(pendingBackup);
+        candidate.restTimer = null;
+        const result = PodhodData.write(storage, STORAGE_KEY, candidate);
+        if (!result.ok) { showToast(result.message || 'Не удалось сохранить копию', true); return; }
+        clearInterval(restTimerInterval);
+        state = candidate;
+        pendingBackup = null;
+        storageReadBlocked = false;
+        saveFailed = false;
+        saveLabel = 'Сохранено на устройстве';
+        selectedHistoryDay = null;
+        renderAll();
+        restoreDialog.close();
+        dialog.close();
+        showToast('Дневник восстановлен');
       });
 
       $('#reset-data').addEventListener('click', () => {
@@ -1315,13 +1573,38 @@
 
       window.addEventListener('keydown', event => {
         if (event.target.matches('input, select, textarea')) return;
-        const modalOpen = [dialog, editSetDialog, noteDialog, templateDialog, membershipDialog].some(item => item.open);
+        const modalOpen = [dialog, editSetDialog, noteDialog, templateDialog, membershipDialog, exerciseListDialog, restoreDialog].some(item => item.open);
+        if ($('#workout-panel').hidden) return;
         if (event.key === 'ArrowLeft' && !modalOpen) changeExercise(-1);
         if (event.key === 'ArrowRight' && !modalOpen) changeExercise(1);
       });
 
       renderAll();
+      if (loadedData.status === 'empty') save();
       if (state.restTimer?.endAt > Date.now()) restTimerInterval = setInterval(renderRestTimer, 1000);
+
+      function syncCurrentDay() {
+        const current = dateKey(new Date());
+        if (current === today) return;
+        today = current;
+        state = normalizeState(state);
+        setInputFromHistory();
+        calendarCursor = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+        save();
+        renderAll();
+      }
+      function scheduleDayRollover() {
+        clearTimeout(dayRolloverTimer);
+        const now = new Date();
+        const nextDay = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+        dayRolloverTimer = setTimeout(() => {
+          syncCurrentDay();
+          scheduleDayRollover();
+        }, Math.max(1, nextDay.getTime() - now.getTime() + 20));
+      }
+      scheduleDayRollover();
+      document.addEventListener('visibilitychange', () => { if (!document.hidden) { syncCurrentDay(); scheduleDayRollover(); } });
+      window.addEventListener('focus', () => { syncCurrentDay(); scheduleDayRollover(); });
 
       function registerModelTools() {
         const context = document.modelContext;
